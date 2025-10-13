@@ -1,0 +1,15 @@
+header {
+  background: #f3f3f3;
+  padding: 1rem;
+}
+
+nav a {
+  margin-right: 1rem;
+  text-decoration: none;
+  color: #333;
+}
+
+nav a.active {
+  font-weight: bold;
+  color: #0066cc;
+}
