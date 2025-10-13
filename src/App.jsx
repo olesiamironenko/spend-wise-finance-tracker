@@ -6,7 +6,9 @@ import {
   NavLink,
   useNavigate,
 } from 'react-router-dom';
+
 import { useAuth } from './context/AuthContext.jsx';
+
 import RegisterPage from './pages/RegisterPage';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
@@ -14,7 +16,10 @@ import AccountsPage from './pages/AccountsPage.jsx';
 import TransactionsPage from './pages/TransactionsPage.jsx';
 import SharedExpensesPage from './pages/SharedExpensesPage.jsx';
 import NotFoundPage from './pages/NotFoundPage';
+
 import PrivateRoute from './router/PrivateRoute';
+
+import './App.css';
 
 export default function App() {
   const { user, logout } = useAuth();
