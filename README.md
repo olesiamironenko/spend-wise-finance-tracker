@@ -1,16 +1,73 @@
-# React + Vite
+# 💰 SpendWise Finance Tracker
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+A simple and intuitive **personal finance tracking app** built with **React + Vite**.  
+It helps you manage income, expenses, accounts (cash, debit, and credit cards), and shared transactions with friends or family.  
+You can upload transactions from Google Sheets or CSV files, categorize your spending, and visualize your financial overview in one place.
 
-Currently, two official plugins are available:
+---
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+## ⚙️ Installation
 
-## React Compiler
+1. **Clone the repository:**
+   ```
+   git clone https://github.com/yourusername/finance-tracker.git
+   ```
+2. **Navigate into the project folder:**
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+   ```
+    cd spend-wise-finance-tracker
+   ```
 
-## Expanding the ESLint configuration
+3. **Install dependencies:**
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+   ```
+   npm install
+   ```
+
+## 🚀 Running the Development Server
+
+1. **Start the Vite dev server:**
+
+   ```
+   npm run dev
+   ```
+
+2. **Open your browser at:**
+   👉 http://localhost:5173
+
+## 📁 Project Structure
+
+    ```
+    finance-tracker/
+    ├── src/
+    │   ├── pages/            # All main app pages (Dashboard, Accounts, etc.)
+    │   ├── components/       # Shared UI components
+    │   ├── router/           # React Router setup
+    │   ├── App.jsx           # Root App component
+    │   └── main.jsx          # Entry point
+    ├── index.html
+    ├── package.json
+    └── vite.config.js
+    ```
+
+## 💡 Features (Planned)
+
+- 💵 Track income and expenses by category
+- 🏦 Manage multiple accounts (cash, debit, credit)
+- 👥 Shared expenses and payoffs trackin
+- 📤 Upload transactions from Google Sheets/CSV
+- 📊 Summary dashboard with charts and insights
+
+## 🧑‍💻 Tech Stack
+
+- React
+- Vite
+- React Router
+
+## 🪄 License
+
+This project is licensed under the **MIT License** — feel free to use, modify, and share.
+
+## ✨ Author
+
+Created by [Olesia Mironenko](https://github.com/olesiamironenko)
