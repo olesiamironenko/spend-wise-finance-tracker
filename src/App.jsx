@@ -1,7 +1,5 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
 
-import { useAuth } from './context/AuthContext.jsx';
-
 import RegisterPage from './pages/RegisterPage';
 import LoginPage from './pages/LoginPage';
 import DashboardPage from './pages/DashboardPage';
@@ -16,93 +14,42 @@ import PrivateLayout from './components/shared/PrivateLayout';
 import './App.css';
 
 export default function App() {
-  const { user, logout } = useAuth();
+  const isAuthenticated = localStorage.getItem('user');
 
   return (
     <div>
       <Routes>
-        {/* Public routes */}
-        <Route
-          path="/login"
-          element={
-            <PublicLayout>
-              <LoginPage />
-            </PublicLayout>
-          }
-        />
-
-        <Route
-          path="/register"
-          element={
-            <PublicLayout>
-              <RegisterPage />
-            </PublicLayout>
-          }
-        />
-
-        <Route
-          path="*"
-          element={
-            <PublicLayout>
-              <LoginPage />
-            </PublicLayout>
-          }
-        />
-
-        {/* Private (authenticated) routes */}
-        <Route
-          path="/dashboard"
-          element={
-            <PrivateLayout>
-              <DashboardPage />
-            </PrivateLayout>
-          }
-        />
-
-        <Route
-          path="/accounts"
-          element={
-            <PrivateLayout>
-              <AccountsPage />
-            </PrivateLayout>
-          }
-        />
-
-        <Route
-          path="/transactions"
-          element={
-            <PrivateLayout>
-              <TransactionsPage />
-            </PrivateLayout>
-          }
-        />
-
-        <Route
-          path="/shared"
-          element={
-            <PrivateLayout>
-              <SharedExpensesPage />
-            </PrivateLayout>
-          }
-        />
-
-        <Route
-          path="/*"
-          element={
-            <PrivateLayout>
-              <NotFoundPage />
-            </PrivateLayout>
-          }
-        />
-
+        {/* Redirect root "/" depending on auth status */}
         <Route
           path="/"
           element={
-            <PrivateLayout>
-              <Navigate to="/dashboard" replace />
-            </PrivateLayout>
+            isAuthenticated ? (
+              <Navigate to="/app" replace />
+            ) : (
+              <Navigate to="/login" replace />
+            )
           }
         />
+
+        {/* Public routes */}
+        <Route element={<PublicLayout />}>
+          <Route path="/login" element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+
+          {/* Public 404 fallback */}
+          <Route path="*" element={<NotFoundPage isPrivate={false} />} />
+        </Route>
+
+        {/* Private (authenticated) routes */}
+        <Route path="/app" element={<PrivateLayout />}>
+          <Route index element={<DashboardPage />} />
+          <Route path="accounts" element={<AccountsPage />} />
+          <Route path="transactions" element={<TransactionsPage />} />
+          <Route path="shared" element={<SharedExpensesPage />} />
+
+          {/* Private 404 fallback */}
+          <Route path="*" element={<NotFoundPage isPrivate={true} />} />
+        </Route>
       </Routes>
     </div>
   );

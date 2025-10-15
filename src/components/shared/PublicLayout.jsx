@@ -1,10 +1,11 @@
-export default function PublicLayout({ children }) {
+import { Outlet } from 'react-router-dom';
+import Layout from './Layout';
+
+export default function PublicLayout() {
   return (
-    <div className="public-layout">
-      <header className="public-header">
-        <h1>Spend Wise Finance</h1>
-      </header>
-      <main className="public-content">{children}</main>
-    </div>
+    <Layout>
+      <Outlet />
+      {/* Nested private routes will render here */}
+    </Layout>
   );
 }

@@ -18,7 +18,7 @@ export default function LoginPage() {
 
     const success = login(email, password);
     if (success) {
-      navigate('/dashboard');
+      navigate('/app');
     } else {
       setError('Invalid email or password');
     }
