@@ -1,12 +1,13 @@
 import { useNavigate } from 'react-router-dom';
 
-export default function NotFoundPage({ isPrivate = false }) {
+export default function NotFoundPage() {
   const navigate = useNavigate();
+  const isAuthenticated = !!localStorage.getItem('user'); // detect login
 
   function handleNavigate() {
-    if (isPrivate) {
+    if (isAuthenticated) {
       // Send private users to their dashboard (or main page)
-      navigate('/app/dashboard');
+      navigate('/app');
     } else {
       // Public users go to login page
       navigate('/login');
@@ -18,7 +19,7 @@ export default function NotFoundPage({ isPrivate = false }) {
       <h1>404</h1>
       <p>Oops! The page you’re looking for doesn’t exist.</p>
       <button onClick={handleNavigate}>
-        {isPrivate ? 'Go to Dashboard' : 'Go to Login'}
+        {isAuthenticated ? 'Go to Dashboard' : 'Go to Login'}
       </button>
     </div>
   );
