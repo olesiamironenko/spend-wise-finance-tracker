@@ -4,22 +4,22 @@ export default function Nav({ onClose, onLogout }) {
   return (
     <ul className="dropdown">
       <li>
-        <NavLink to="/dashboard" onClick={onClose}>
+        <NavLink to="/app" onClick={onClose}>
           Dashboard
         </NavLink>
       </li>
       <li>
-        <NavLink to="/accounts" onClick={onClose}>
+        <NavLink to="/app/accounts" onClick={onClose}>
           Accounts
         </NavLink>
       </li>
       <li>
-        <NavLink to="/transactions" onClick={onClose}>
+        <NavLink to="/app/transactions" onClick={onClose}>
           Transactions
         </NavLink>
       </li>
       <li>
-        <NavLink to="/shared" onClick={onClose}>
+        <NavLink to="/app/shared" onClick={onClose}>
           Shared Expenses
         </NavLink>
       </li>
