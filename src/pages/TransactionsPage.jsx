@@ -8,7 +8,7 @@ function TransactionsPage() {
   const [showForm, setShowForm] = useState(false);
 
   const [newTransaction, setNewTransaction] = useState({
-    date: '',
+    date: new Date().toISOString().split('T')[0], // today's date by defaul
     amount: '',
     description: '',
     type: 'expense',
@@ -50,16 +50,27 @@ function TransactionsPage() {
   const handleAddTransaction = (e) => {
     e.preventDefault();
 
+    let amountValue = parseFloat(newTransaction.amount);
+    if (newTransaction.type === 'expense') {
+      amountValue = -Math.abs(amountValue); // ensure expense is negative
+    } else {
+      amountValue = Math.abs(amountValue); // ensure income is positive
+    }
+
     const newTx = {
       id: `t${Date.now()}`,
       userId: user.id,
-      ...newTransaction,
-      amount: parseFloat(newTransaction.amount),
+      accountId: newTransaction.accountId,
+      amount: amountValue,
+      type: newTransaction.type,
+      description: newTransaction.description,
+      shared: newTransaction.shared,
+      date: newTransaction.date || new Date().toISOString().split('T')[0],
     };
 
     setTransactions((prev) => [newTx, ...prev]);
     setNewTransaction({
-      date: '',
+      date: new Date().toISOString().split('T')[0],
       amount: '',
       description: '',
       type: 'expense',
@@ -139,7 +150,10 @@ function TransactionsPage() {
             <input
               type="date"
               name="date"
-              value={newTransaction.date}
+              max={new Date().toISOString().split('T')[0]} // prevent future dates
+              value={
+                newTransaction.date || new Date().toISOString().split('T')[0]
+              } // default to today
               onChange={handleChange}
               required
             />
