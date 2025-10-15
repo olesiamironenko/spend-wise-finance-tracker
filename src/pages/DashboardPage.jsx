@@ -12,9 +12,9 @@ export default function DashboardPage() {
 
   return (
     <div style={{ padding: 20 }}>
-      <h2>Welcome, {user?.email}</h2>
+      <h2>Dashboard</h2>
+      <h3>Welcome, {user?.email}</h3>
       <p>This is your dashboard. More finance features coming soon!</p>
-      <button onClick={handleLogout}>Logout</button>
     </div>
   );
 }

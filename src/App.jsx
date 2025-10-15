@@ -37,7 +37,7 @@ export default function App() {
           <Route path="/register" element={<RegisterPage />} />
 
           {/* Public 404 fallback */}
-          <Route path="*" element={<NotFoundPage isPrivate={false} />} />
+          <Route path="*" element={<NotFoundPage />} />
         </Route>
 
         {/* Private (authenticated) routes */}
@@ -48,7 +48,7 @@ export default function App() {
           <Route path="shared" element={<SharedExpensesPage />} />
 
           {/* Private 404 fallback */}
-          <Route path="*" element={<NotFoundPage isPrivate={true} />} />
+          <Route path="*" element={<NotFoundPage />} />
         </Route>
       </Routes>
     </div>
