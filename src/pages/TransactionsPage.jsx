@@ -5,6 +5,16 @@ import { mockTransactions, mockAccounts } from '../utils/mockData';
 function TransactionsPage() {
   const { user } = useAuth();
   const [transactions, setTransactions] = useState([]);
+  const [showForm, setShowForm] = useState(false);
+
+  const [newTransaction, setNewTransaction] = useState({
+    date: '',
+    amount: '',
+    description: '',
+    type: 'expense',
+    shared: false,
+    accountId: '',
+  });
 
   useEffect(() => {
     if (user?.id) {
@@ -27,6 +37,36 @@ function TransactionsPage() {
     const account = mockAccounts.find((a) => a.id === accountId);
     if (!account || !account.number) return '----';
     return account.number.slice(-4);
+  };
+
+  const handleChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setNewTransaction((prev) => ({
+      ...prev,
+      [name]: type === 'checkbox' ? checked : value,
+    }));
+  };
+
+  const handleAddTransaction = (e) => {
+    e.preventDefault();
+
+    const newTx = {
+      id: `t${Date.now()}`,
+      userId: user.id,
+      ...newTransaction,
+      amount: parseFloat(newTransaction.amount),
+    };
+
+    setTransactions((prev) => [newTx, ...prev]);
+    setNewTransaction({
+      date: '',
+      amount: '',
+      description: '',
+      type: 'expense',
+      shared: false,
+      accountId: '',
+    });
+    setShowForm(false);
   };
 
   return (
@@ -72,6 +112,105 @@ function TransactionsPage() {
             ))}
           </tbody>
         </table>
+      )}
+
+      <button
+        onClick={() => setShowForm((prev) => !prev)}
+        style={{ marginBottom: 20 }}
+      >
+        {showForm ? 'Cancel' : 'Add New Transaction'}
+      </button>
+
+      {showForm && (
+        <form
+          onSubmit={handleAddTransaction}
+          style={{
+            display: 'grid',
+            gap: '10px',
+            marginBottom: 20,
+            border: '1px solid #ccc',
+            padding: 16,
+            borderRadius: 8,
+            background: '#f9f9f9',
+          }}
+        >
+          <label>
+            Date:
+            <input
+              type="date"
+              name="date"
+              value={newTransaction.date}
+              onChange={handleChange}
+              required
+            />
+          </label>
+
+          <label>
+            Amount:
+            <input
+              type="number"
+              name="amount"
+              step="0.01"
+              value={newTransaction.amount}
+              onChange={handleChange}
+              required
+            />
+          </label>
+
+          <label>
+            Description:
+            <input
+              type="text"
+              name="description"
+              value={newTransaction.description}
+              onChange={handleChange}
+              required
+            />
+          </label>
+
+          <label>
+            Type:
+            <select
+              name="type"
+              value={newTransaction.type}
+              onChange={handleChange}
+            >
+              <option value="income">Income</option>
+              <option value="expense">Expense</option>
+            </select>
+          </label>
+
+          <label>
+            Shared:
+            <input
+              type="checkbox"
+              name="shared"
+              checked={newTransaction.shared}
+              onChange={handleChange}
+            />
+          </label>
+
+          <label>
+            Account:
+            <select
+              name="accountId"
+              value={newTransaction.accountId}
+              onChange={handleChange}
+              required
+            >
+              <option value="">Select account</option>
+              {mockAccounts
+                .filter((a) => a.userId === user.id)
+                .map((a) => (
+                  <option key={a.id} value={a.id}>
+                    {a.name} (••••{a.number.slice(-4)})
+                  </option>
+                ))}
+            </select>
+          </label>
+
+          <button type="submit">Save Transaction</button>
+        </form>
       )}
     </div>
   );
