@@ -1,5 +1,65 @@
-header {
-  background: #f3f3f3;
+/* Full-page centering */
+body,
+html,
+#root {
+  margin: 10;
+  padding: 10;
+  font-family: 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  background-color: #f9fafb;
+  color: #1f2937;
+}
+
+/* Headings */
+h1,
+h2,
+h3,
+h4 {
+  font-family: 'Poppins', 'Inter', sans-serif;
+  font-weight: 600;
+  color: #111827; /* darker for contrast */
+  margin-bottom: 0.5rem;
+}
+
+h1 {
+  font-size: 2rem;
+  margin-top: 1rem;
+}
+
+/* Common Input Styles */
+input[type='text'],
+input[type='search'],
+textarea {
+  font-family: inherit;
+  font-size: 1rem;
+  padding: 0.5rem;
+  border-radius: 6px;
+  border: 1px solid #d1d5db; /* light gray */
+  width: 100%;
+  max-width: 400px;
+  box-sizing: border-box;
+}
+
+input:focus,
+textarea:focus {
+  outline: none;
+  border-color: #2563eb;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.25);
+}
+
+/* Layout helpers */
+hr {
+  border: none;
+  border-top: 1px solid #e5e7eb;
+  margin: 1.5rem 0;
+}
+
+p {
+  line-height: 1.5;
+}
+
+header,
+footer {
+  background: #e0e0e0;
   padding: 1rem;
 }
 
