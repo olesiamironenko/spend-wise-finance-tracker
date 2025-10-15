@@ -17,10 +17,34 @@ export const mockUsers = [
 // === ACCOUNTS ===
 // Each account belongs to one user (ownerId)
 export const mockAccounts = [
-  { id: 'acc_1', userId: 'user_1', name: 'Checking', balance: 2500.0 },
-  { id: 'acc_2', userId: 'user_1', name: 'Savings', balance: 3200.0 },
-  { id: 'acc_3', userId: 'user_2', name: 'Checking', balance: 1800.0 },
-  { id: 'acc_4', userId: 'user_2', name: 'Travel Fund', balance: 900.0 },
+  {
+    id: 'acc_1',
+    userId: 'user_1',
+    name: 'Checking',
+    balance: 2500.0,
+    number: '123456789012',
+  },
+  {
+    id: 'acc_2',
+    userId: 'user_1',
+    name: 'Savings',
+    balance: 3200.0,
+    number: '987654321098',
+  },
+  {
+    id: 'acc_3',
+    userId: 'user_2',
+    name: 'Checking',
+    balance: 1800.0,
+    number: '567890123456',
+  },
+  {
+    id: 'acc_4',
+    userId: 'user_2',
+    name: 'Travel Fund',
+    balance: 900.0,
+    number: '967298123456',
+  },
 ];
 
 // === TRANSACTIONS ===

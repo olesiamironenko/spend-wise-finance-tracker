@@ -8,6 +8,7 @@ function AccountsPage() {
   const [showForm, setShowForm] = useState(false);
   const [newAccountName, setNewAccountName] = useState('');
   const [newAccountBalance, setNewAccountBalance] = useState('');
+  const [newAccountNumber, setNewAccountNumber] = useState('');
 
   // Load user accounts
   useEffect(() => {
@@ -22,10 +23,11 @@ function AccountsPage() {
     if (!newAccountName) return;
 
     const newAcc = {
-      id: `acc_${Date.now()}`,
+      id: `acc_${Date.now()}`, // internal unique ID
       userId: user.id,
       name: newAccountName,
       balance: parseFloat(newAccountBalance) || 0,
+      number: newAccountNumber, // account number entered by user
     };
 
     // Update accounts in state
@@ -42,6 +44,7 @@ function AccountsPage() {
     // Reset form
     setNewAccountName('');
     setNewAccountBalance('');
+    setNewAccountNumber('');
     setShowForm(false); // hide form after adding
   };
 
@@ -91,6 +94,13 @@ function AccountsPage() {
             value={newAccountName}
             onChange={(e) => setNewAccountName(e.target.value)}
             style={{ marginRight: 10 }}
+          />
+          <input
+            type="text"
+            placeholder="Account Number"
+            value={newAccountNumber}
+            onChange={(e) => setNewAccountNumber(e.target.value)}
+            style={{ marginRight: 10, width: 150 }}
           />
           <input
             type="number"
