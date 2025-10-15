@@ -1,5 +1,7 @@
 import { createContext, useContext, useState, useEffect } from 'react';
 
+import { mockUsers } from '../utils/mockData';
+
 const AuthContext = createContext();
 
 export function AuthProvider({ children }) {
@@ -11,21 +13,18 @@ export function AuthProvider({ children }) {
   }, []);
 
   const login = (email, password) => {
-    // Get registered users from localStorage
-    const users = JSON.parse(localStorage.getItem('users')) || [];
-    // Check if a user with matching email and password exists
+    const storedUsers = JSON.parse(localStorage.getItem('users')) || [];
+    const allUsers = [...mockUsers, ...storedUsers];
 
-    const foundUser = users.find(
-      (user) => user.email === email && user.password === password
+    const foundUser = allUsers.find(
+      (u) => u.email === email.trim() && u.password === password.trim()
     );
 
     if (foundUser) {
-      // Login success: save user in localStorage
-      localStorage.setItem('user', JSON.stringify({ email: foundUser.email }));
-      setUser({ email: foundUser.email });
+      localStorage.setItem('user', JSON.stringify(foundUser));
+      setUser(foundUser);
       return true;
     } else {
-      // Login failed
       return false;
     }
   };
@@ -36,9 +35,11 @@ export function AuthProvider({ children }) {
   };
 
   const register = (email, password) => {
-    // Save "registered" user (mock)
+    // Save "registered" user (local storage)
     const users = JSON.parse(localStorage.getItem('users')) || [];
-    users.push({ email, password });
+    const id = 'user_' + (users.length + mockUsers.length + 1);
+    const newUser = { id, email, password, name: email.split('@')[0] };
+    users.push(newUser);
     localStorage.setItem('users', JSON.stringify(users));
   };
 
