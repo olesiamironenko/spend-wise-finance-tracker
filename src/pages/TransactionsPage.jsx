@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { useAuth } from '../context/AuthContext';
+import { useAuth } from '../hooks/useAuth';
 import { mockTransactions, mockAccounts } from '../utils/mockData';
 
 function TransactionsPage() {
