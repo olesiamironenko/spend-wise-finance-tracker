@@ -2,7 +2,7 @@ import { Navigate, Outlet } from 'react-router-dom';
 import Layout from './Layout';
 
 export default function PrivateLayout() {
-  const isAuthenticated = localStorage.getItem('user');
+  const isAuthenticated = localStorage.getItem('currentUser');
 
   if (!isAuthenticated) return <Navigate to="/login" replace />;
   return (

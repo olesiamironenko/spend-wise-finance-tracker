@@ -9,18 +9,25 @@ export default function LoginPage() {
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
+
     if (!email || !password) {
       setError('Please enter both email and password');
       return;
     }
 
-    const success = login(email, password);
-    if (success) {
-      navigate('/app');
-    } else {
-      setError('Invalid email or password');
+    try {
+      const success = await login(email, password); // Airtable login
+      if (success) {
+        navigate('/app');
+      } else {
+        setError('Invalid email or password');
+      }
+    } catch (error) {
+      console.error(error);
+      setError('Error connecting to database');
     }
   };
 

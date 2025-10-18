@@ -17,7 +17,7 @@ import { testAirtable } from './utils/testAirtable';
 import './App.css';
 
 export default function App() {
-  const isAuthenticated = localStorage.getItem('user');
+  const isAuthenticated = localStorage.getItem('currentUser');
 
   useEffect(() => {
     testAirtable();
