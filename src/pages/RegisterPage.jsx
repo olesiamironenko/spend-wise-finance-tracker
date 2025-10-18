@@ -1,29 +1,35 @@
 import { useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { useNavigate, Link } from 'react-router-dom';
-import { createUser } from '../utils/airtableUsers';
 
 export default function RegisterPage() {
   const { register } = useAuth();
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    setError('');
+
+    if (!email || !password) {
+      setError('Please enter both email and password');
+      return;
+    }
 
     try {
-      // 1️. Save user in Airtable
-      const newUser = await createUser(email, password);
-      console.log('User created in Airtable:', newUser.fields);
+      const success = await register(email, password); // Airtable register
 
-      // 2️. Save user in localStorage via useAuth (simulated login)
-      register(email, password);
-
-      alert('Registration successful! You can now log in.');
-      navigate('/login');
-    } catch (err) {
-      alert('Error registering user. Check console for details.');
+      if (success) {
+        alert('Registration successful! You are now logged in.');
+        navigate('/app');
+      } else {
+        setError('Error registering user');
+      }
+    } catch (error) {
+      console.error(error);
+      setError('Error connecting to database');
     }
   };
 
@@ -49,6 +55,9 @@ export default function RegisterPage() {
       <p>
         Already have an account? <Link to="/login">Login</Link>
       </p>
+
+      {/* Display error here */}
+      {error && <p style={{ color: 'red', marginTop: '10px' }}>{error}</p>}
     </div>
   );
 }

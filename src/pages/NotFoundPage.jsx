@@ -2,7 +2,7 @@ import { useNavigate } from 'react-router-dom';
 
 export default function NotFoundPage() {
   const navigate = useNavigate();
-  const isAuthenticated = !!localStorage.getItem('user'); // detect login
+  const isAuthenticated = !!localStorage.getItem('currentUser'); // detect login
 
   function handleNavigate() {
     if (isAuthenticated) {

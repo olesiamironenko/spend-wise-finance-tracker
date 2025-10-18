@@ -7,10 +7,10 @@ export default function Header() {
   const [menuOpen, setMenuOpen] = useState(false);
   const menuRef = useRef(null);
 
-  const user = JSON.parse(localStorage.getItem('user'));
+  const user = JSON.parse(localStorage.getItem('currentUser'));
 
   function handleLogout() {
-    localStorage.removeItem('user');
+    localStorage.removeItem('currentUser');
     navigate('/login');
   }
 
