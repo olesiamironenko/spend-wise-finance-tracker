@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useAuth } from '../hooks/useAuth';
-import { getAccountsByUser } from '../utils/mockStorage'; // fetch accounts by user
+import { fetchAccounts, addAccount } from '../utils/airtableAccounts'; // fetch accounts by user
 
 function AccountsPage() {
   const { user } = useAuth();
@@ -9,43 +9,38 @@ function AccountsPage() {
   const [newAccountName, setNewAccountName] = useState('');
   const [newAccountBalance, setNewAccountBalance] = useState('');
   const [newAccountNumber, setNewAccountNumber] = useState('');
+  const [loading, setLoading] = useState(false);
 
   // Load user accounts
   useEffect(() => {
-    if (user?.id) {
-      const userAccounts = getAccountsByUser(user.id);
-      setAccounts(userAccounts);
-    }
+    if (!user?.id) return;
+
+    setLoading(true);
+    fetchAccounts(user.id)
+      .then(setAccounts)
+      .finally(() => setLoading(false));
   }, [user]);
 
   // Handle Add Account
   const handleAddAccount = () => {
     if (!newAccountName) return;
 
-    const newAcc = {
-      id: `acc_${Date.now()}`, // internal unique ID
-      userId: user.id,
+    addAccount(user.id, {
       name: newAccountName,
+      number: newAccountNumber,
       balance: parseFloat(newAccountBalance) || 0,
-      number: newAccountNumber, // account number entered by user
-    };
-
-    // Update accounts in state
-    const updatedAccounts = [...accounts, newAcc];
-    setAccounts(updatedAccounts);
-
-    // Persist in localStorage
-    const storedAccounts = JSON.parse(localStorage.getItem('accounts')) || [];
-    localStorage.setItem(
-      'accounts',
-      JSON.stringify([...storedAccounts, newAcc])
-    );
-
-    // Reset form
-    setNewAccountName('');
-    setNewAccountBalance('');
-    setNewAccountNumber('');
-    setShowForm(false); // hide form after adding
+      currency: 'USD',
+    })
+      .then((record) => {
+        setAccounts((prev) => [...prev, { id: record.id, ...record.fields }]);
+      })
+      .catch((err) => console.error(err))
+      .finally(() => {
+        setNewAccountName('');
+        setNewAccountBalance('');
+        setNewAccountNumber('');
+        setShowForm(false);
+      });
   };
 
   if (!user) return <p>Loading...</p>;
