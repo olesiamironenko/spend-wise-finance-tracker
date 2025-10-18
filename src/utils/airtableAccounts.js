@@ -7,18 +7,20 @@ export async function fetchAccounts(userId) {
   try {
     const records = await base(TABLE_NAME)
       .select({
-        filterByFormula: `{userId} = '${userId}'`,
+        filterByFormula: `{userID} = '${userId}'`,
         sort: [{ field: 'createdAt', direction: 'desc' }],
       })
       .all();
 
     return records.map((r) => ({
       id: r.id,
-      userId: r.fields.userId,
+      accountId: r.fields.accountID, // map to camelCase
+      userId: r.fields.userID,
       name: r.fields.name,
+      number: r.fields.number,
       balance: r.fields.balance || 0,
-      number: r.fields.number || '',
       currency: r.fields.currency || 'USD',
+      createdAt: r.fields.createdAt,
     }));
   } catch (err) {
     console.error('Error fetching accounts:', err);
@@ -33,8 +35,8 @@ export async function addAccount(userId, { name, number, balance, currency }) {
     const record = await base(TABLE_NAME).create([
       {
         fields: {
-          userId,
-          accountId, // matches Airtable field
+          userID: userId,
+          accountID: accountId, // matches Airtable field
           name,
           number,
           balance: parseFloat(balance) || 0,
@@ -44,8 +46,18 @@ export async function addAccount(userId, { name, number, balance, currency }) {
       },
     ]);
 
+    const r = record[0];
     console.log('Account created:', record[0].fields);
-    return record[0];
+    return {
+      id: rec.id,
+      accountId: rec.fields.accountID, // map to camelCase
+      userId: rec.fields.userID,
+      name: rec.fields.name,
+      number: rec.fields.number,
+      balance: rec.fields.balance || 0,
+      currency: rec.fields.currency || 'USD',
+      createdAt: rec.fields.createdAt,
+    };
   } catch (err) {
     console.error('Error adding account to Airtable:', err);
     throw err;
@@ -62,10 +74,16 @@ export async function updateAccount(accountId, updates) {
       },
     ]);
 
-    const record = updated[0];
+    const r = updated[0];
     return {
-      id: record.id,
-      ...record.fields,
+      id: r.id,
+      accountId: r.fields.accountID, // map to camelCase
+      userId: r.fields.userID,
+      name: r.fields.name,
+      number: r.fields.number,
+      balance: r.fields.balance || 0,
+      currency: r.fields.currency || 'USD',
+      createdAt: r.fields.createdAt,
     };
   } catch (error) {
     console.error('Error updating account:', error);
