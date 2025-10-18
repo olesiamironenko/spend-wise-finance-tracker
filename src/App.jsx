@@ -1,4 +1,5 @@
 import { Routes, Route, Navigate } from 'react-router-dom';
+import { useEffect } from 'react';
 
 import RegisterPage from './pages/RegisterPage';
 import LoginPage from './pages/LoginPage';
@@ -11,10 +12,16 @@ import NotFoundPage from './pages/NotFoundPage';
 import PublicLayout from './components/shared/PublicLayout';
 import PrivateLayout from './components/shared/PrivateLayout';
 
+import { testAirtable } from './utils/testAirtable';
+
 import './App.css';
 
 export default function App() {
   const isAuthenticated = localStorage.getItem('user');
+
+  useEffect(() => {
+    testAirtable();
+  }, []);
 
   return (
     <div>

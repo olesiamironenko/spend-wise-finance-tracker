@@ -1,20 +1,22 @@
 import base from './airtableClient';
 
 // Create a new user record
-export async function createUser(userData) {
+export async function createUser(email, password) {
+  const userID = 'u' + Date.now(); // unique user ID generator
   try {
-    const records = await base('Users').create([
+    const record = await base('Users').create([
       {
         fields: {
-          email,
-          password,
+          userID,
+          email: email,
+          password: password,
         },
       },
     ]);
-    console.log('User added to Airtable:', records[0].fields);
-    return records[0];
-  } catch (error) {
-    console.error('Error adding user to Airtable:', error);
-    throw error;
+    console.log('User created:', record[0].fields);
+    return record[0];
+  } catch (err) {
+    console.error('Error adding user to Airtable:', err);
+    throw err;
   }
 }
