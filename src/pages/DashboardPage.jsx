@@ -7,8 +7,8 @@ import {
   getTotalIncome,
   getTotalExpenses,
   getSharedTotals,
-} from '../utils/mockCalculations';
-import { mockTransactions } from '../utils/mockData';
+} from '../utils/airtableCalculations'; // <- replace with Airtable
+import { fetchTransactions } from '../utils/airtableTransactions'; // <- fetch transactions from Airtable
 
 export default function DashboardPage() {
   const { user, logout } = useAuth();
@@ -25,6 +25,7 @@ export default function DashboardPage() {
     totalOwed: 0,
   });
   const [recentTransactions, setRecentTransactions] = useState([]);
+  const [loading, setLoading] = useState(true);
 
   const handleLogout = () => {
     logout();
@@ -32,30 +33,36 @@ export default function DashboardPage() {
   };
 
   useEffect(() => {
-    if (user?.id) {
-      setTotals({
-        balance: getTotalBalance(user.id),
-        income: getTotalIncome(user.id),
-        expenses: getTotalExpenses(user.id),
-      });
-      setShared(getSharedTotals(user.id));
+    if (!user?.id) return;
 
-      // Recent 5 transactions (shared + personal)
-      const userTx = mockTransactions.filter(
-        (t) =>
-          t.userId === user.id ||
-          (t.shared && t.participants?.some((p) => p.userId === user.id))
-      );
+    async function fetchData() {
+      setLoading(true);
 
-      const sorted = userTx
+      // --- Totals ---
+      const balance = await getTotalBalance(user.id);
+      const income = await getTotalIncome(user.id);
+      const expenses = await getTotalExpenses(user.id);
+      setTotals({ balance, income, expenses });
+
+      // --- Shared totals ---
+      const sharedTotals = await getSharedTotals(user.id);
+      setShared(sharedTotals);
+
+      // --- Recent transactions ---
+      const transactions = await fetchTransactions(user.id);
+      const sorted = transactions
         .sort((a, b) => new Date(b.date) - new Date(a.date))
         .slice(0, 5);
-
       setRecentTransactions(sorted);
+
+      setLoading(false);
     }
+
+    fetchData();
   }, [user]);
 
-  if (!user) return <p>Loading...</p>;
+  if (!user) return <p>Loading user info...</p>;
+  if (loading) return <p>Loading data...</p>;
 
   return (
     <div style={{ padding: 20 }}>
@@ -64,6 +71,7 @@ export default function DashboardPage() {
         <h3>Welcome, {user?.email}</h3>
         <p>This is your dashboard. More finance features coming soon!</p>
       </header>
+
       {/* --- TOTAL TOTALS --- */}
       <section style={{ marginBottom: 30 }}>
         <h2>💰 Overall Totals</h2>
@@ -120,6 +128,10 @@ export default function DashboardPage() {
           ))}
         </ul>
       </section>
+
+      <button onClick={handleLogout} style={{ marginTop: 20 }}>
+        Logout
+      </button>
     </div>
   );
 }

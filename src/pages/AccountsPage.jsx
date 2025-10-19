@@ -7,114 +7,114 @@ import {
   deleteAccount,
 } from '../utils/airtableAccounts';
 
-function AccountsPage() {
+export default function AccountsPage() {
   const { user } = useAuth();
   const [accounts, setAccounts] = useState([]);
   const [showForm, setShowForm] = useState(false);
-  const [newAccountName, setNewAccountName] = useState('');
-  const [newAccountBalance, setNewAccountBalance] = useState('');
-  const [newAccountNumber, setNewAccountNumber] = useState('');
   const [editAccountId, setEditAccountId] = useState(null);
   const [loading, setLoading] = useState(false);
 
+  const [newAccount, setNewAccount] = useState({
+    accountName: '',
+    accountType: '',
+    balance: '',
+    currency: 'USD',
+  });
+
   const resetForm = () => {
-    setNewAccountName('');
-    setNewAccountNumber('');
-    setNewAccountBalance('');
+    setNewAccount({
+      accountName: '',
+      accountType: '',
+      balance: '',
+      currency: 'USD',
+    });
     setShowForm(false);
     setEditAccountId(null);
   };
 
-  // Load user accounts (fetch accounts)
+  console.log('User from context:', user);
+
+  // Load user accounts
   useEffect(() => {
     if (!user?.id) return;
 
     setLoading(true);
     fetchAccounts(user.id)
       .then((records) => {
-        // Map Airtable fields to frontend-friendly camelCase
-        const mappedAccounts = records.map((r) => ({
-          id: r.id, // Airtable record ID
-          accountId: r.fields.accountID, // map Airtable field to camelCase
+        const mapped = records.map((r) => ({
+          id: r.id,
           ...r.fields,
         }));
-        setAccounts(mappedAccounts);
+        setAccounts(mapped);
       })
       .finally(() => setLoading(false));
   }, [user]);
 
-  // Handle Add Account
+  // Add Account
   const handleAddAccount = async () => {
-    if (!newAccountName) return;
+    console.log('Creating account with:', {
+      userRecordId: user?.id,
+      type: newAccount.accountType,
+    });
+
+    if (!user?.id) {
+      alert('Missing user Airtable ID!');
+      return;
+    }
 
     try {
-      const record = await addAccount(user.id, {
-        name: newAccountName,
-        number: newAccountNumber,
-        balance: parseFloat(newAccountBalance) || 0,
-        currency: 'USD',
+      await addAccount({
+        accountName: newAccount.accountName,
+        accountType: newAccount.accountType,
+        balance: parseFloat(newAccount.balance) || 0,
+        currency: newAccount.currency,
+        userRecordId: user.id,
       });
 
-      setAccounts((prev) => [
-        ...prev,
-        {
-          id: record.id,
-          accountId: record.fields.accountID,
-          ...record.fields,
-        },
-      ]);
+      const refreshed = await fetchAccounts(user.id);
+      setAccounts(refreshed);
       resetForm();
     } catch (err) {
-      console.error(err);
+      console.error('Error creating account:', err);
     }
   };
 
-  // Open form for edditing the account
+  // Edit Account
   const handleEdit = (acc) => {
-    setNewAccountName(acc.name);
-    setNewAccountNumber(acc.number);
-    setNewAccountBalance(acc.balance);
-    setEditAccountId(acc.accountId); // mark this account for updating
-    setShowForm(true); // show the form
+    setNewAccount({
+      accountName: acc.accountName || '',
+      accountType: acc.accountType || '',
+      balance: acc.balance || '',
+      currency: acc.currency || 'USD',
+    });
+    setEditAccountId(acc.id);
+    setShowForm(true);
   };
 
-  // Handle Update Account
+  // Update Account
   const handleUpdateAccount = async () => {
-    if (!newAccountName || !editAccountId) return;
-
-    const accountToUpdate = accounts.find(
-      (acc) => acc.accountId === editAccountId
-    );
-    if (!accountToUpdate) return;
-
     try {
-      const updated = await updateAccount(accountToUpdate.id, {
-        name: newAccountName,
-        number: newAccountNumber,
-        balance: parseFloat(newAccountBalance) || 0,
+      await updateAccount(editAccountId, {
+        accountName: newAccount.accountName,
+        accountType: newAccount.accountType,
+        balance: parseFloat(newAccount.balance) || 0,
+        currency: newAccount.currency,
       });
 
-      const updatedAcc = {
-        id: updated.id,
-        accountId: updated.fields.accountID, // map Airtable field
-        ...updated.fields,
-      };
-
-      setAccounts((prev) =>
-        prev.map((acc) => (acc.accountId === editAccountId ? updatedAcc : acc))
-      );
+      const refreshed = await fetchAccounts(user.id);
+      setAccounts(refreshed);
       resetForm();
     } catch (err) {
-      console.error(err);
+      console.error('Error updating account:', err);
     }
   };
 
   // Delete Account
   const handleDelete = async (acc) => {
-    if (!window.confirm(`Delete account "${acc.name}"?`)) return;
+    if (!window.confirm(`Delete account "${acc.accountName}"?`)) return;
     try {
-      await deleteAccount(acc.id); // call Airtable helper
-      setAccounts((prev) => prev.filter((a) => a.accountId !== acc.accountId));
+      await deleteAccount(acc.id);
+      setAccounts((prev) => prev.filter((a) => a.id !== acc.id));
     } catch (err) {
       console.error(err);
     }
@@ -135,7 +135,7 @@ function AccountsPage() {
         <ul>
           {accounts.map((acc) => (
             <li
-              key={acc.accountId}
+              key={acc.id}
               style={{
                 padding: '12px 16px',
                 border: '1px solid #ddd',
@@ -145,9 +145,12 @@ function AccountsPage() {
                 justifyContent: 'space-between',
               }}
             >
-              <span>{acc.name}</span>
-              <strong>${acc.balance.toFixed(2)}</strong>
-
+              <div>
+                <strong>{acc.accountName}</strong> — {acc.accountType}
+              </div>
+              <div>
+                <strong>${acc.balance?.toFixed(2)}</strong>
+              </div>
               <div>
                 <button
                   onClick={() => handleEdit(acc)}
@@ -162,48 +165,63 @@ function AccountsPage() {
         </ul>
       )}
 
-      {/* Toggle Add Account Form */}
-      <button
-        onClick={() => {
-          setShowForm((prev) => !prev);
-          if (!showForm) resetForm(); // reset when opening
-        }}
-      >
-        {showForm ? 'Cancel' : 'Add New Account'}
-      </button>
+      {/* Add / Edit Form */}
+      {!showForm && (
+        <button
+          onClick={() => {
+            resetForm();
+            setShowForm(true);
+          }}
+        >
+          ➕ Add New Account
+        </button>
+      )}
 
       {showForm && (
-        <div style={{ marginBottom: 20 }}>
+        <div style={{ marginTop: 20 }}>
           <input
             type="text"
             placeholder="Account Name"
-            value={newAccountName}
-            onChange={(e) => setNewAccountName(e.target.value)}
+            value={newAccount.accountName}
+            onChange={(e) =>
+              setNewAccount({ ...newAccount, accountName: e.target.value })
+            }
             style={{ marginRight: 10 }}
           />
-          <input
-            type="text"
-            placeholder="Account Number"
-            value={newAccountNumber}
-            onChange={(e) => setNewAccountNumber(e.target.value)}
-            style={{ marginRight: 10, width: 150 }}
-          />
+
+          <select
+            value={newAccount.accountType}
+            onChange={(e) =>
+              setNewAccount({ ...newAccount, accountType: e.target.value })
+            }
+            style={{ marginRight: 10 }}
+          >
+            <option value="">Select Type</option>
+            <option value="Checking">Checking</option>
+            <option value="Savings">Savings</option>
+            <option value="Credit Card">Credit Card</option>
+            <option value="Debit Card">Debit Card</option>
+          </select>
+
           <input
             type="number"
             placeholder="Starting Balance"
-            value={newAccountBalance}
-            onChange={(e) => setNewAccountBalance(e.target.value)}
-            style={{ marginRight: 10, width: 120 }}
+            value={newAccount.balance}
+            onChange={(e) =>
+              setNewAccount({ ...newAccount, balance: e.target.value })
+            }
+            style={{ marginRight: 10 }}
           />
+
           <button
             onClick={editAccountId ? handleUpdateAccount : handleAddAccount}
+            style={{ marginRight: 10 }}
           >
-            {editAccountId ? 'Update' : 'Save'}
+            {editAccountId ? 'Update Account' : 'Save Account'}
           </button>
+          <button onClick={resetForm}>Cancel</button>
         </div>
       )}
     </div>
   );
 }
-
-export default AccountsPage;

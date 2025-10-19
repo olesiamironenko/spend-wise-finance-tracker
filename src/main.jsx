@@ -5,10 +5,6 @@ import { AuthProvider } from './context/AuthContext';
 import './index.css';
 import App from './App.jsx';
 
-// Seed the data on app start
-import { seedMocks } from './utils/mockStorage';
-seedMocks();
-
 createRoot(document.getElementById('root')).render(
   <StrictMode>
     <BrowserRouter>
