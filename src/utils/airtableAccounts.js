@@ -1,103 +1,88 @@
 import base from './airtableClient';
+import { nanoid } from 'nanoid';
 
-const TABLE_NAME = 'Accounts';
-
-// Fetch all accounts for a given user ID
+// Return array of account record IDs linked to this user
 export async function fetchAccounts(userId) {
   try {
-    const records = await base(TABLE_NAME)
+    const records = await base('Accounts')
       .select({
-        filterByFormula: `{userID} = '${userId}'`,
-        sort: [{ field: 'createdAt', direction: 'desc' }],
+        filterByFormula: `{userId} = "${userId}"`,
       })
-      .all();
+      .firstPage();
 
     return records.map((r) => ({
       id: r.id,
-      accountId: r.fields.accountID, // map to camelCase
-      userId: r.fields.userID,
-      name: r.fields.name,
-      number: r.fields.number,
-      balance: r.fields.balance || 0,
-      currency: r.fields.currency || 'USD',
-      createdAt: r.fields.createdAt,
-    }));
+      accountId: r.fields.accountId,
+      userId: r.fields.userId,
+      account_name: r.fields.account_name,
+      account_number: r.fields.account_number,
+      account_type: r.fields.account_type,
+      balance: r.fields.balance,
+    })); // return Airtable record IDs
   } catch (err) {
-    console.error('Error fetching accounts:', err);
-    throw err;
+    console.error('Error fetching user accounts from Airtable:', err);
+    return [];
   }
 }
 
-// Create a new account in Airtable
-export async function addAccount(userId, { name, number, balance, currency }) {
-  const accountId = 'acc_' + Date.now(); // unique ID
+// Add a new account
+export async function addAccount({
+  account_name,
+  account_number,
+  account_type,
+  balance,
+  currency,
+  userRecordId,
+}) {
+  console.log('Creating account with:', {
+    userRecordId,
+    type: typeof userRecordId,
+  });
+
   try {
-    const record = await base(TABLE_NAME).create([
+    const record = await base('Accounts').create([
       {
         fields: {
-          userID: userId,
-          accountID: accountId, // matches Airtable field
-          name,
-          number,
-          balance: parseFloat(balance) || 0,
-          currency: currency || 'USD',
-          createdAt: new Date().toISOString(),
+          accountId: nanoid(8), // generate unique ID
+          account_name,
+          account_number,
+          account_type,
+          balance,
+          currency,
+          userId: [userRecordId],
         },
       },
     ]);
 
-    const r = record[0];
-    console.log('Account created:', record[0].fields);
-    return {
-      id: rec.id,
-      accountId: rec.fields.accountID, // map to camelCase
-      userId: rec.fields.userID,
-      name: rec.fields.name,
-      number: rec.fields.number,
-      balance: rec.fields.balance || 0,
-      currency: rec.fields.currency || 'USD',
-      createdAt: rec.fields.createdAt,
-    };
+    return record[0].fields;
   } catch (err) {
-    console.error('Error adding account to Airtable:', err);
+    console.error('Error adding account:', err);
     throw err;
   }
 }
 
-// Update an existing account
-export async function updateAccount(accountId, updates) {
+export async function updateAccount(accountId, updatedFields) {
   try {
-    const updated = await base(TABLE_NAME).update([
+    const record = await base('Accounts').update([
       {
         id: accountId,
-        fields: updates,
+        fields: updatedFields,
       },
     ]);
-
-    const r = updated[0];
-    return {
-      id: r.id,
-      accountId: r.fields.accountID, // map to camelCase
-      userId: r.fields.userID,
-      name: r.fields.name,
-      number: r.fields.number,
-      balance: r.fields.balance || 0,
-      currency: r.fields.currency || 'USD',
-      createdAt: r.fields.createdAt,
-    };
-  } catch (error) {
-    console.error('Error updating account:', error);
-    throw error;
+    return record[0].fields; // return updated fields
+  } catch (err) {
+    console.error('Error updating account:', err);
+    throw err;
   }
 }
 
-// Delete an account from Airtable
+// Delete an account by Airtable record ID
 export async function deleteAccount(accountId) {
   try {
-    await base(TABLE_NAME).destroy(accountId);
-    return accountId;
-  } catch (error) {
-    console.error('Error deleting account:', error);
-    throw error;
+    await base('Accounts').destroy([accountId]);
+    return true;
+  } catch (err) {
+    console.error('Error deleting account:', err);
+    throw err;
   }
 }

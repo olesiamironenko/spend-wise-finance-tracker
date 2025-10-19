@@ -19,17 +19,15 @@ export default function RegisterPage() {
     }
 
     try {
-      const success = await register(email, password); // Airtable register
-
+      const success = await register(email, password);
       if (success) {
-        alert('Registration successful! You are now logged in.');
-        navigate('/app');
+        navigate('/app'); // redirect after registration
       } else {
-        setError('Error registering user');
+        setError('Error registering user. Email may already exist.');
       }
-    } catch (error) {
-      console.error(error);
-      setError('Error connecting to database');
+    } catch (err) {
+      console.error(err);
+      setError('Error connecting to Airtable.');
     }
   };
 
@@ -55,9 +53,7 @@ export default function RegisterPage() {
       <p>
         Already have an account? <Link to="/login">Login</Link>
       </p>
-
-      {/* Display error here */}
-      {error && <p style={{ color: 'red', marginTop: '10px' }}>{error}</p>}
+      {error && <p style={{ color: 'red', marginTop: 10 }}>{error}</p>}
     </div>
   );
 }
