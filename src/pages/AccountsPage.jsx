@@ -38,14 +38,16 @@ export default function AccountsPage() {
   useEffect(() => {
     if (!user?.id) return;
 
+    console.log('Fetching accounts for user ID:', user.id);
+
     setLoading(true);
     fetchAccounts(user.id)
       .then((records) => {
-        const mapped = records.map((r) => ({
-          id: r.id,
-          ...r.fields,
-        }));
-        setAccounts(mapped);
+        console.log('Mapped accounts ready for UI:', records);
+        setAccounts(records);
+      })
+      .catch((err) => {
+        console.error('Error fetching accounts:', err);
       })
       .finally(() => setLoading(false));
   }, [user]);

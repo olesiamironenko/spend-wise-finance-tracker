@@ -13,14 +13,11 @@ export async function createUser(email, password) {
     throw new Error('Email already exists');
   }
 
-  const record = await base('Users').create([
-    { fields: { userId, email, password } },
-  ]);
+  const record = await base('Users').create([{ fields: { email, password } }]);
 
   const r = record[0];
   return {
     id: r.id,
-    userId: r.fields.userId,
     email: r.fields.email,
     password: r.fields.password,
   };

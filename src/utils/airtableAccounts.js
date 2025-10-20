@@ -1,24 +1,26 @@
 import base from './airtableClient';
-import { nanoid } from 'nanoid';
 
 // Return array of account record IDs linked to this user
 export async function fetchAccounts(userId) {
   try {
     const records = await base('Accounts')
       .select({
-        filterByFormula: `{userId} = "${userId}"`,
+        filterByFormula: `{userId} = '${userId}'`,
       })
       .firstPage();
 
+    console.log('Airtable raw records:', records);
+
     return records.map((r) => ({
       id: r.id,
-      accountId: r.fields.accountId,
+      accountId: r.fields.accountId, // if you still store a unique ID
       userId: r.fields.userId,
-      account_name: r.fields.account_name,
-      account_number: r.fields.account_number,
-      account_type: r.fields.account_type,
+      accountName: r.fields.accountName,
+      accountNumber: r.fields.accountNumber,
+      accountType: r.fields.accountType,
       balance: r.fields.balance,
-    })); // return Airtable record IDs
+      currency: r.fields.currency,
+    }));
   } catch (err) {
     console.error('Error fetching user accounts from Airtable:', err);
     return [];
@@ -27,9 +29,9 @@ export async function fetchAccounts(userId) {
 
 // Add a new account
 export async function addAccount({
-  account_name,
-  account_number,
-  account_type,
+  accountName,
+  accountNumber,
+  accountType,
   balance,
   currency,
   userRecordId,
@@ -43,10 +45,9 @@ export async function addAccount({
     const record = await base('Accounts').create([
       {
         fields: {
-          accountId: nanoid(8), // generate unique ID
-          account_name,
-          account_number,
-          account_type,
+          accountName,
+          accountNumber,
+          accountType,
           balance,
           currency,
           userId: [userRecordId],
