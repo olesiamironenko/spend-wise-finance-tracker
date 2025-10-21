@@ -43,11 +43,7 @@ export async function fetchTransactions(userId) {
       categoryId: r.fields.categoryId?.[0] || null,
       categoryName: r.fields['categoryName'] || '—',
       shared: r.fields.shared || false,
-      sharedWith: Array.isArray(r.fields.sharedWith)
-        ? r.fields.sharedWith
-        : r.fields.sharedWith
-          ? [r.fields.sharedWith]
-          : [],
+      sharedWith: Array.isArray(r.fields.sharedWith) ? r.fields.sharedWith : [],
       date: r.fields.date || '',
       description: r.fields.description || '',
     }));
@@ -89,11 +85,7 @@ export async function addTransaction({
       // linked records:
       accountId: accountId ? [accountId] : [],
       categoryId: categoryId ? [categoryId] : [],
-      sharedWith: Array.isArray(sharedWith)
-        ? sharedWith
-        : sharedWith
-          ? sharedWith.split(',').map((s) => s.trim())
-          : [],
+      sharedWith: Array.isArray(sharedWith) ? sharedWith : [],
     };
 
     console.log('Creating transaction with:', normalizedFields);
@@ -119,11 +111,7 @@ export async function updateTransaction(id, fields) {
       shared: fields.shared,
       accountId: fields.accountId ? [fields.accountId] : [],
       categoryId: fields.categoryId ? [fields.categoryId] : [],
-      sharedWith: Array.isArray(fields.sharedWith)
-        ? fields.sharedWith
-        : fields.sharedWith
-          ? fields.sharedWith.split(',').map((s) => s.trim())
-          : [],
+      sharedWith: Array.isArray(fields.sharedWith) ? fields.sharedWith : [],
     };
 
     const record = await base('Transactions').update([

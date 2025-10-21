@@ -42,3 +42,22 @@ export async function findUserByEmailAndPassword(email, password) {
     password: r.fields.password,
   };
 }
+
+export async function fetchUsers() {
+  try {
+    const records = await base('Users')
+      .select({
+        fields: ['email', 'name'],
+      })
+      .all();
+
+    return records.map((r) => ({
+      id: r.id,
+      email: r.fields.email,
+      name: r.fields.name,
+    }));
+  } catch (err) {
+    console.error('Error fetching users:', err);
+    return [];
+  }
+}

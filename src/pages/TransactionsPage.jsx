@@ -6,8 +6,9 @@ import {
   updateTransaction,
   deleteTransaction,
 } from '../utils/airtableTransactions';
-import { fetchAccounts } from '../utils/airtableAccounts'; // helper to get user's account IDs for form dropdown
+import { fetchAccounts, fetchAllAccounts } from '../utils/airtableAccounts'; // helper to get user's account IDs for form dropdown
 import { fetchCategories } from '../utils/airtableCategories'; // helper to get user's categories IDs for form dropdown
+import { fetchUsers } from '../utils/airtableUsers';
 
 export default function TransactionsPage() {
   const { user } = useAuth();
@@ -17,6 +18,7 @@ export default function TransactionsPage() {
   const [loading, setLoading] = useState(false);
   const [categories, setCategories] = useState([]);
   const [accounts, setAccounts] = useState([]); // user accounts list
+  const [allUsers, setAllUsers] = useState([]); // all users for sharedWith dropdown
 
   // Fetch categories
   useEffect(() => {
@@ -29,6 +31,11 @@ export default function TransactionsPage() {
     if (!user?.id) return;
     fetchAccounts(user.id).then(setAccounts).catch(console.error);
   }, [user]);
+
+  // Fetch all users
+  useEffect(() => {
+    fetchUsers().then(setAllUsers).catch(console.error);
+  }, []);
 
   // Fetch transactions
   const loadTransactions = async () => {
@@ -44,9 +51,40 @@ export default function TransactionsPage() {
     }
   };
 
+  // Load Transactions
   useEffect(() => {
     loadTransactions();
   }, [user]);
+
+  // Handle multi-select for sharedWith
+  const handleSharedWithChange = (e) => {
+    const options = Array.from(e.target.selectedOptions);
+    const selectedIds = options.map((o) => o.value);
+    setEditTransaction((prev) => ({
+      ...prev,
+      sharedWith: selectedIds,
+    }));
+  };
+  // Convert comma-separated emails into Airtable record IDs
+  const resolveSharedWithIds = (sharedWithInput) => {
+    if (!sharedWithInput) return [];
+
+    const emails = Array.isArray(sharedWithInput)
+      ? sharedWithInput
+      : sharedWithInput
+          .split(',')
+          .map((s) => s.trim())
+          .filter(Boolean);
+
+    return emails
+      .map((email) =>
+        allAccounts.find(
+          (acc) => acc.email?.toLowerCase() === email.toLowerCase()
+        )
+      )
+      .filter(Boolean)
+      .map((acc) => acc.id);
+  };
 
   // Open form for new transaction
   const handleAddTransaction = () => {
@@ -58,7 +96,7 @@ export default function TransactionsPage() {
       date: '',
       description: '',
       shared: false,
-      sharedWith: '',
+      sharedWith: [],
     });
     setShowForm(true);
   };
@@ -66,7 +104,10 @@ export default function TransactionsPage() {
   // Update Transaction
   // Open form for editing existing transaction
   const handleEditTransaction = (transaction) => {
-    setEditTransaction(transaction);
+    setEditTransaction({
+      ...transaction,
+      sharedWith: transaction.sharedWith || [],
+    });
     setShowForm(true);
   };
 
@@ -81,29 +122,18 @@ export default function TransactionsPage() {
 
   // Save new transaction
   const handleSave = async () => {
-    if (!editTransaction.accountId)
-      return alert('Account is required. Please select an account.');
+    if (!editTransaction.accountId) {
+      return alert('Account is required.');
+    }
 
     try {
-      // Normalize sharedWith
-      let sharedWithArray = [];
-      if (Array.isArray(editTransaction.sharedWith)) {
-        sharedWithArray = editTransaction.sharedWith;
-      } else if (typeof editTransaction.sharedWith === 'string') {
-        sharedWithArray = editTransaction.sharedWith
-          .split(',')
-          .map((s) => s.trim())
-          .filter(Boolean);
-      }
-
       await addTransaction({
         ...editTransaction,
         userId: user.id,
         amount: parseFloat(editTransaction.amount) || 0,
-        sharedWith: sharedWithArray,
+        sharedWith: editTransaction.sharedWith,
       });
-
-      await loadTransactions(); // refresh list
+      await loadTransactions();
       setEditTransaction(null);
       setShowForm(false);
     } catch (err) {
@@ -112,31 +142,20 @@ export default function TransactionsPage() {
   };
 
   // Update existing transaction
+  // Update existing transaction
   const handleUpdate = async () => {
-    if (!editTransaction.accountId)
-      return alert('Account is required. Please select an account.');
+    if (!editTransaction.accountId) {
+      return alert('Account is required.');
+    }
 
     try {
       const { id, ...fields } = editTransaction;
-
-      // Normalize sharedWith
-      let sharedWithArray = [];
-      if (Array.isArray(fields.sharedWith)) {
-        sharedWithArray = fields.sharedWith;
-      } else if (typeof fields.sharedWith === 'string') {
-        sharedWithArray = fields.sharedWith
-          .split(',')
-          .map((s) => s.trim())
-          .filter(Boolean);
-      }
-
       await updateTransaction(id, {
         ...fields,
         amount: parseFloat(fields.amount) || 0,
-        sharedWith: sharedWithArray,
+        sharedWith: fields.sharedWith,
       });
-
-      await loadTransactions(); // refresh list
+      await loadTransactions();
       setEditTransaction(null);
       setShowForm(false);
     } catch (err) {
@@ -279,14 +298,32 @@ export default function TransactionsPage() {
             Shared
           </label>
 
-          <input
-            type="text"
-            name="sharedWith"
-            placeholder="Shared with (comma-separated)"
-            value={editTransaction.sharedWith || ''}
-            onChange={handleInputChange}
-            style={{ marginRight: 10, width: '250px' }}
-          />
+          <label style={{ marginRight: 10 }}>
+            Shared with:
+            <select
+              multiple
+              name="sharedWith"
+              value={editTransaction.sharedWith || []}
+              onChange={(e) => {
+                const selectedIds = Array.from(e.target.selectedOptions).map(
+                  (option) => option.value
+                );
+                setEditTransaction((prev) => ({
+                  ...prev,
+                  sharedWith: selectedIds,
+                }));
+              }}
+              style={{ marginLeft: 10, width: 250, height: 100 }}
+            >
+              {allUsers
+                .filter((u) => u.id !== user.id) // exclude current user
+                .map((u) => (
+                  <option key={u.id} value={u.id}>
+                    {u.name || u.email}
+                  </option>
+                ))}
+            </select>
+          </label>
 
           <input
             type="text"
