@@ -142,7 +142,6 @@ export default function TransactionsPage() {
   };
 
   // Update existing transaction
-  // Update existing transaction
   const handleUpdate = async () => {
     if (!editTransaction.accountId) {
       return alert('Account is required.');
@@ -161,12 +160,6 @@ export default function TransactionsPage() {
     } catch (err) {
       console.error('Error updating transaction:', err);
     }
-  };
-
-  // Cancel form
-  const handleCancel = () => {
-    setEditTransaction(null);
-    setShowForm(false);
   };
 
   // Delete transaction
@@ -304,24 +297,14 @@ export default function TransactionsPage() {
               multiple
               name="sharedWith"
               value={editTransaction.sharedWith || []}
-              onChange={(e) => {
-                const selectedIds = Array.from(e.target.selectedOptions).map(
-                  (option) => option.value
-                );
-                setEditTransaction((prev) => ({
-                  ...prev,
-                  sharedWith: selectedIds,
-                }));
-              }}
-              style={{ marginLeft: 10, width: 250, height: 100 }}
+              onChange={handleSharedWithChange}
+              style={{ width: 250, marginRight: 10 }}
             >
-              {allUsers
-                .filter((u) => u.id !== user.id) // exclude current user
-                .map((u) => (
-                  <option key={u.id} value={u.id}>
-                    {u.name || u.email}
-                  </option>
-                ))}
+              {allUsers.map((u) => (
+                <option key={u.id} value={u.id}>
+                  {u.name} ({u.email})
+                </option>
+              ))}
             </select>
           </label>
 
