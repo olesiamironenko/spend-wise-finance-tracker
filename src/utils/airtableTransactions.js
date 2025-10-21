@@ -18,17 +18,36 @@ export async function fetchTransactions(userId) {
       .select({
         filterByFormula: formula,
         sort: [{ field: 'date', direction: 'desc' }],
+        fields: [
+          'amount',
+          'transactionType',
+          'categoryId',
+          'categoryName', // lookup
+          'shared',
+          'sharedWith',
+          'date',
+          'description',
+          'accountId',
+          'accountName', // lookup
+        ],
       })
       .firstPage();
 
+    // Step 4: normalize results
     return records.map((r) => ({
       id: r.id,
       accountId: r.fields.accountId?.[0] || null,
+      accountName: r.fields['accountName'] || '—',
       amount: r.fields.amount || 0,
       transactionType: r.fields.transactionType || '',
-      category: r.fields.category || '',
+      categoryId: r.fields.categoryId?.[0] || null,
+      categoryName: r.fields['categoryName'] || '—',
       shared: r.fields.shared || false,
-      sharedWith: r.fields.sharedWith || [],
+      sharedWith: Array.isArray(r.fields.sharedWith)
+        ? r.fields.sharedWith
+        : r.fields.sharedWith
+          ? [r.fields.sharedWith]
+          : [],
       date: r.fields.date || '',
       description: r.fields.description || '',
     }));
@@ -43,7 +62,7 @@ export async function addTransaction({
   accountId,
   amount,
   transactionType,
-  category,
+  categoryId,
   shared,
   sharedWith,
   date,
@@ -69,7 +88,7 @@ export async function addTransaction({
       shared,
       // linked records:
       accountId: accountId ? [accountId] : [],
-      category: category ? [category] : [],
+      categoryId: categoryId ? [categoryId] : [],
       sharedWith: Array.isArray(sharedWith)
         ? sharedWith
         : sharedWith
@@ -93,7 +112,13 @@ export async function updateTransaction(id, fields) {
   try {
     // Normalize sharedWith field before sending to Airtable
     const normalizedFields = {
-      ...fields,
+      amount: fields.amount,
+      transactionType: fields.transactionType,
+      date: fields.date,
+      description: fields.description,
+      shared: fields.shared,
+      accountId: fields.accountId ? [fields.accountId] : [],
+      categoryId: fields.categoryId ? [fields.categoryId] : [],
       sharedWith: Array.isArray(fields.sharedWith)
         ? fields.sharedWith
         : fields.sharedWith
@@ -102,10 +127,7 @@ export async function updateTransaction(id, fields) {
     };
 
     const record = await base('Transactions').update([
-      {
-        id,
-        fields: normalizedFields,
-      },
+      { id, fields: normalizedFields },
     ]);
 
     console.log('Transaction updated successfully:', record[0].fields);

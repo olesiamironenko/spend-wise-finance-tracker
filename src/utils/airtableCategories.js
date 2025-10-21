@@ -7,6 +7,7 @@ export async function fetchCategories(userRecordId) {
       .select({
         filterByFormula: `{userId} = "${userRecordId}"`,
         sort: [{ field: 'categoryName', direction: 'asc' }],
+        fields: ['categoryName'],
       })
       .firstPage();
 
