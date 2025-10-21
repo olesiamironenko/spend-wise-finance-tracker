@@ -1,19 +1,25 @@
 import base from './airtableClient';
 import { fetchAccounts } from './airtableAccounts'; // helper to get user's account IDs
 
-// Fetch transactions for a user's accounts
 export async function fetchTransactions(userId) {
   try {
-    // Step 1: get all account record IDs for this user
-    const userAccounts = await fetchAccounts(userId);
-    const accountIds = userAccounts.map((a) => a.id); // Airtable record IDs
+    const accounts = await fetchAccounts(userId);
+    console.log('Fetched accounts for user:', userId, accounts);
 
-    if (!accountIds.length) return [];
+    const accountMap = Object.fromEntries(
+      accounts.map((a) => [a.id, a.userId])
+    );
+    const accountIds = accounts.map((a) => a.id);
+    console.log('Account IDs to search for:', accountIds);
 
-    // Step 2: build filter formula for Transactions
+    if (!accountIds.length) {
+      console.warn('No accounts found for this user.');
+      return [];
+    }
+
     const formula = `OR(${accountIds.map((id) => `FIND("${id}", {accountId})`).join(',')})`;
+    console.log('Airtable formula:', formula);
 
-    // Step 3: fetch transactions
     const records = await base('Transactions')
       .select({
         filterByFormula: formula,
@@ -22,31 +28,53 @@ export async function fetchTransactions(userId) {
           'amount',
           'transactionType',
           'categoryId',
-          'categoryName', // lookup
+          'categoryName',
           'shared',
           'sharedWith',
           'date',
           'description',
           'accountId',
-          'accountName', // lookup
+          'accountName',
         ],
       })
       .firstPage();
 
-    // Step 4: normalize results
-    return records.map((r) => ({
-      id: r.id,
-      accountId: r.fields.accountId?.[0] || null,
-      accountName: r.fields['accountName'] || '—',
-      amount: r.fields.amount || 0,
-      transactionType: r.fields.transactionType || '',
-      categoryId: r.fields.categoryId?.[0] || null,
-      categoryName: r.fields['categoryName'] || '—',
-      shared: r.fields.shared || false,
-      sharedWith: Array.isArray(r.fields.sharedWith) ? r.fields.sharedWith : [],
-      date: r.fields.date || '',
-      description: r.fields.description || '',
-    }));
+    console.log(
+      'Fetched transactions:',
+      records.length,
+      records.map((r) => r.fields)
+    );
+
+    return records.map((r) => {
+      const accountId = Array.isArray(r.fields.accountId)
+        ? r.fields.accountId[0]
+        : r.fields.accountId || null;
+
+      // Find which user owns this account
+      const account = accounts.find((a) => a.id === accountId);
+      const ownerId = account ? account.userId?.[0] || account.userId : userId;
+
+      return {
+        id: r.id,
+        userId: ownerId,
+        accountId,
+        accountName: Array.isArray(r.fields.accountName)
+          ? r.fields.accountName[0]
+          : r.fields.accountName || '—',
+        amount: r.fields.amount || 0,
+        transactionType: r.fields.transactionType || '',
+        categoryId: Array.isArray(r.fields.categoryId)
+          ? r.fields.categoryId[0]
+          : r.fields.categoryId || null,
+        categoryName: r.fields.categoryName || '—',
+        shared: r.fields.shared || false,
+        sharedWith: Array.isArray(r.fields.sharedWith)
+          ? r.fields.sharedWith
+          : [],
+        date: r.fields.date || '',
+        description: r.fields.description || '',
+      };
+    });
   } catch (err) {
     console.error('Error fetching transactions from Airtable:', err);
     return [];
