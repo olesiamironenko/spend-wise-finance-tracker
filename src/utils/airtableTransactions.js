@@ -62,21 +62,19 @@ export async function addTransaction({
     }
 
     const normalizedFields = {
-      accountId: accountId,
       amount,
       transactionType,
-      category,
-      shared,
       date,
       description,
-      // Normalize sharedWith input
+      shared,
+      // linked records:
+      accountId: accountId ? [accountId] : [],
+      category: category ? [category] : [],
       sharedWith: Array.isArray(sharedWith)
         ? sharedWith
         : sharedWith
           ? sharedWith.split(',').map((s) => s.trim())
           : [],
-      // Airtable expects linked record arrays
-      accountId: [accountId],
     };
 
     console.log('Creating transaction with:', normalizedFields);

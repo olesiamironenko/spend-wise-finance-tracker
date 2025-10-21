@@ -7,6 +7,7 @@ import {
   deleteTransaction,
 } from '../utils/airtableTransactions';
 import { fetchAccounts } from '../utils/airtableAccounts'; // helper to get user's account IDs for form dropdown
+import { fetchCategories } from '../utils/airtableCategories'; // helper to get user's categories IDs for form dropdown
 
 export default function TransactionsPage() {
   const { user } = useAuth();
@@ -14,6 +15,19 @@ export default function TransactionsPage() {
   const [showForm, setShowForm] = useState(false);
   const [editTransactionId, setEditTransactionId] = useState(null);
   const [loading, setLoading] = useState(false);
+
+  const [categories, setCategories] = useState([]);
+
+  useEffect(() => {
+    if (!user?.id) return;
+
+    const loadCategories = async () => {
+      const cats = await fetchCategories(user.id);
+      setCategories(cats);
+    };
+
+    loadCategories();
+  }, [user]);
 
   const [newTransaction, setNewTransaction] = useState({
     amount: '',
@@ -221,15 +235,23 @@ export default function TransactionsPage() {
           </select>
 
           {/* Category */}
-          <input
-            type="text"
-            placeholder="Category"
-            value={newTransaction.category}
+          <select
+            value={newTransaction.categoryId || ''}
             onChange={(e) =>
-              setNewTransaction({ ...newTransaction, category: e.target.value })
+              setNewTransaction({
+                ...newTransaction,
+                categoryId: e.target.value,
+              })
             }
             style={{ marginRight: 10 }}
-          />
+          >
+            <option value="">Select Category</option>
+            {categories.map((cat) => (
+              <option key={cat.id} value={cat.id}>
+                {cat.categoryName}
+              </option>
+            ))}
+          </select>
 
           {/* Account ID Dropdown */}
           <select
