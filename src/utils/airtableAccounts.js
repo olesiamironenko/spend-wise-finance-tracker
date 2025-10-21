@@ -27,6 +27,27 @@ export async function fetchAccounts(userId) {
   }
 }
 
+export async function fetchAllAccounts() {
+  try {
+    const records = await base('Accounts')
+      .select({
+        fields: ['accountName', 'currency', 'userId', 'email'],
+      })
+      .all();
+
+    return records.map((r) => ({
+      id: r.id,
+      accountName: r.fields.accountName,
+      currency: r.fields.currency,
+      userId: r.fields.userId?.[0] || null,
+      email: r.fields.email || '',
+    }));
+  } catch (err) {
+    console.error('Error fetching all accounts:', err);
+    return [];
+  }
+}
+
 // Add a new account
 export async function addAccount({
   accountName,
