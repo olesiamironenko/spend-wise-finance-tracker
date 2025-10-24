@@ -74,26 +74,28 @@ export default function TransactionForm({
           name="shared"
           checked={editTransaction.shared || false}
           onChange={onChange}
-        />{' '}
+        />
         Shared
       </label>
 
-      <label style={{ marginRight: 10 }}>
-        Shared with:
-        <select
-          multiple
-          name="sharedWith"
-          value={editTransaction.sharedWith || []}
-          onChange={onSharedWithChange}
-          style={{ width: 250, marginRight: 10 }}
-        >
-          {allUsers.map((u) => (
-            <option key={u.id} value={u.id}>
-              {u.name} ({u.email})
-            </option>
-          ))}
-        </select>
-      </label>
+      {editTransaction.shared && (
+        <label style={{ marginRight: 10 }}>
+          Shared with:
+          <select
+            multiple
+            name="sharedWith"
+            value={editTransaction.sharedWith || []}
+            onChange={onSharedWithChange}
+            style={{ width: 250, marginRight: 10 }}
+          >
+            {allUsers.map((u) => (
+              <option key={u.id} value={u.id}>
+                {u.name} ({u.email})
+              </option>
+            ))}
+          </select>
+        </label>
+      )}
 
       <input
         type="text"

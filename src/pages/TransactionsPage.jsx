@@ -6,7 +6,7 @@ import {
   updateTransaction,
   deleteTransaction,
 } from '../utils/airtableTransactions';
-import { fetchAccounts, fetchAllAccounts } from '../utils/airtableAccounts'; // helper to get user's account IDs for form dropdown
+import { fetchAccounts } from '../utils/airtableAccounts'; // helper to get user's account IDs for form dropdown
 import { fetchCategories } from '../utils/airtableCategories'; // helper to get user's categories IDs for form dropdown
 import { fetchUsers } from '../utils/airtableUsers';
 import TransactionForm from '../features/transactions/TransactionForm';
@@ -67,26 +67,6 @@ export default function TransactionsPage() {
       sharedWith: selectedIds,
     }));
   };
-  // Convert comma-separated emails into Airtable record IDs
-  const resolveSharedWithIds = (sharedWithInput) => {
-    if (!sharedWithInput) return [];
-
-    const emails = Array.isArray(sharedWithInput)
-      ? sharedWithInput
-      : sharedWithInput
-          .split(',')
-          .map((s) => s.trim())
-          .filter(Boolean);
-
-    return emails
-      .map((email) =>
-        allAccounts.find(
-          (acc) => acc.email?.toLowerCase() === email.toLowerCase()
-        )
-      )
-      .filter(Boolean)
-      .map((acc) => acc.id);
-  };
 
   // Open form for new transaction
   const handleAddTransaction = useCallback(() => {
@@ -119,6 +99,7 @@ export default function TransactionsPage() {
     setEditTransaction((prev) => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : value,
+      ...(name === 'shared' && !checked ? { sharedWith: [] } : {}),
     }));
   }, []);
 
