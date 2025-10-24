@@ -10,6 +10,7 @@ import { fetchAccounts, fetchAllAccounts } from '../utils/airtableAccounts'; // 
 import { fetchCategories } from '../utils/airtableCategories'; // helper to get user's categories IDs for form dropdown
 import { fetchUsers } from '../utils/airtableUsers';
 import TransactionForm from '../features/transactions/TransactionForm';
+import TransactionList from '../features/transactions/TransactionList';
 
 export default function TransactionsPage() {
   const { user } = useAuth();
@@ -182,42 +183,12 @@ export default function TransactionsPage() {
       {transactions.length === 0 ? (
         <p>No transactions yet.</p>
       ) : (
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-          <thead>
-            <tr>
-              <th>Date</th>
-              <th>Amount</th>
-              <th>Description</th>
-              <th>Account</th>
-              <th>Category</th>
-              <th>Shared?</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {transactions.map((t) => (
-              <tr key={t.id}>
-                <td>{t.date}</td>
-                <td style={{ color: t.amount >= 0 ? 'green' : 'red' }}>
-                  ${t.amount.toFixed(2)}
-                </td>
-                <td>{t.description}</td>
-                <td>{t.accountName || '—'}</td>
-                <td>{t.categoryName || '—'}</td>
-                <td>{t.sharedWith?.length > 0 ? 'Yes' : 'No'}</td>
-                <td>
-                  <button onClick={() => handleEditTransaction(t)}>Edit</button>
-                  <button
-                    onClick={() => handleDelete(t)}
-                    style={{ marginLeft: 10 }}
-                  >
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <TransactionList
+          transactions={transactions}
+          loading={loading}
+          onEdit={handleEditTransaction}
+          onDelete={handleDelete}
+        />
       )}
       {!showForm && (
         <button onClick={handleAddTransaction}>➕ Add New Transaction</button>
