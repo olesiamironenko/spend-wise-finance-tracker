@@ -9,6 +9,7 @@ import {
 import { fetchAccounts, fetchAllAccounts } from '../utils/airtableAccounts'; // helper to get user's account IDs for form dropdown
 import { fetchCategories } from '../utils/airtableCategories'; // helper to get user's categories IDs for form dropdown
 import { fetchUsers } from '../utils/airtableUsers';
+import TransactionForm from '../features/transactions/TransactionForm';
 
 export default function TransactionsPage() {
   const { user } = useAuth();
@@ -223,112 +224,17 @@ export default function TransactionsPage() {
       )}
       {/* Form */}
       {showForm && editTransaction && (
-        <div style={{ marginTop: 20 }}>
-          <input
-            type="number"
-            name="amount"
-            placeholder="Amount"
-            value={editTransaction.amount}
-            onChange={handleInputChange}
-            style={{ marginRight: 10 }}
-          />
-
-          <select
-            name="transactionType"
-            value={editTransaction.transactionType || ''}
-            onChange={handleInputChange}
-            style={{ marginRight: 10 }}
-          >
-            <option value="">Select Type</option>
-            <option value="Expense">Expense</option>
-            <option value="Income">Income</option>
-          </select>
-
-          <select
-            name="categoryId"
-            value={editTransaction.categoryId || ''}
-            onChange={handleInputChange}
-            style={{ marginRight: 10 }}
-          >
-            <option value="">Select Category</option>
-            {categories.map((cat) => (
-              <option key={cat.id} value={cat.id}>
-                {cat.categoryName}
-              </option>
-            ))}
-          </select>
-
-          <select
-            name="accountId"
-            value={editTransaction.accountId || ''}
-            onChange={handleInputChange}
-            required
-            style={{ marginRight: 10 }}
-          >
-            <option value="">Select Account</option>
-            {accounts.map((acc) => (
-              <option key={acc.id} value={acc.id}>
-                {acc.accountName} ({acc.currency})
-              </option>
-            ))}
-          </select>
-
-          <input
-            type="date"
-            name="date"
-            value={editTransaction.date || ''}
-            onChange={handleInputChange}
-            style={{ marginRight: 10 }}
-          />
-
-          <label style={{ marginRight: 10 }}>
-            <input
-              type="checkbox"
-              name="shared"
-              checked={editTransaction.shared || false}
-              onChange={handleInputChange}
-            />{' '}
-            Shared
-          </label>
-
-          <label style={{ marginRight: 10 }}>
-            Shared with:
-            <select
-              multiple
-              name="sharedWith"
-              value={editTransaction.sharedWith || []}
-              onChange={handleSharedWithChange}
-              style={{ width: 250, marginRight: 10 }}
-            >
-              {allUsers.map((u) => (
-                <option key={u.id} value={u.id}>
-                  {u.name} ({u.email})
-                </option>
-              ))}
-            </select>
-          </label>
-
-          <input
-            type="text"
-            name="description"
-            placeholder="Description"
-            value={editTransaction.description || ''}
-            onChange={handleInputChange}
-            style={{ marginRight: 10 }}
-          />
-
-          {editTransaction.id ? (
-            <button onClick={handleUpdate} style={{ marginRight: 10 }}>
-              Update Transaction
-            </button>
-          ) : (
-            <button onClick={handleSave} style={{ marginRight: 10 }}>
-              Save Transaction
-            </button>
-          )}
-
-          <button onClick={() => setShowForm(false)}>Cancel</button>
-        </div>
+        <TransactionForm
+          editTransaction={editTransaction}
+          categories={categories}
+          accounts={accounts}
+          allUsers={allUsers}
+          onChange={handleInputChange}
+          onSharedWithChange={handleSharedWithChange}
+          onSave={handleSave}
+          onUpdate={handleUpdate}
+          onCancel={() => setShowForm(false)}
+        />
       )}
     </div>
   );
