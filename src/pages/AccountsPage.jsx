@@ -6,6 +6,7 @@ import {
   updateAccount,
   deleteAccount,
 } from '../utils/airtableAccounts';
+import AccountForm from '../features/accounts/AccountForm';
 
 export default function AccountsPage() {
   const { user } = useAuth();
@@ -180,49 +181,13 @@ export default function AccountsPage() {
       )}
 
       {showForm && (
-        <div style={{ marginTop: 20 }}>
-          <input
-            type="text"
-            placeholder="Account Name"
-            value={newAccount.accountName}
-            onChange={(e) =>
-              setNewAccount({ ...newAccount, accountName: e.target.value })
-            }
-            style={{ marginRight: 10 }}
-          />
-
-          <select
-            value={newAccount.accountType}
-            onChange={(e) =>
-              setNewAccount({ ...newAccount, accountType: e.target.value })
-            }
-            style={{ marginRight: 10 }}
-          >
-            <option value="">Select Type</option>
-            <option value="Checking">Checking</option>
-            <option value="Savings">Savings</option>
-            <option value="Credit Card">Credit Card</option>
-            <option value="Debit Card">Debit Card</option>
-          </select>
-
-          <input
-            type="number"
-            placeholder="Starting Balance"
-            value={newAccount.balance}
-            onChange={(e) =>
-              setNewAccount({ ...newAccount, balance: e.target.value })
-            }
-            style={{ marginRight: 10 }}
-          />
-
-          <button
-            onClick={editAccountId ? handleUpdateAccount : handleAddAccount}
-            style={{ marginRight: 10 }}
-          >
-            {editAccountId ? 'Update Account' : 'Save Account'}
-          </button>
-          <button onClick={resetForm}>Cancel</button>
-        </div>
+        <AccountForm
+          newAccount={newAccount}
+          setNewAccount={setNewAccount}
+          onSubmit={editAccountId ? handleUpdateAccount : handleAddAccount}
+          onCancel={resetForm}
+          isEditing={!!editAccountId}
+        />
       )}
     </div>
   );
