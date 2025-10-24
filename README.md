@@ -10,7 +10,7 @@ You can upload transactions from Google Sheets or CSV files, categorize your spe
 
 1. **Clone the repository:**
    ```
-   git clone https://github.com/yourusername/finance-tracker.git
+   git clone https://github.com/olesiamironenko/spend-wise-finance-tracker
    ```
 2. **Navigate into the project folder:**
 
