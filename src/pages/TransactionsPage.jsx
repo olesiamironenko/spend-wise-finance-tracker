@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import {
   fetchTransactions,
@@ -40,7 +40,7 @@ export default function TransactionsPage() {
   }, []);
 
   // Fetch transactions
-  const loadTransactions = async () => {
+  const loadTransactions = useCallback(async () => {
     if (!user?.id) return;
     setLoading(true);
     try {
@@ -51,12 +51,12 @@ export default function TransactionsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user?.id]);
 
   // Load Transactions
   useEffect(() => {
     loadTransactions();
-  }, [user]);
+  }, [loadTransactions]);
 
   // Handle multi-select for sharedWith
   const handleSharedWithChange = (e) => {
@@ -89,7 +89,7 @@ export default function TransactionsPage() {
   };
 
   // Open form for new transaction
-  const handleAddTransaction = () => {
+  const handleAddTransaction = useCallback(() => {
     setEditTransaction({
       amount: '',
       transactionType: '',
@@ -101,29 +101,29 @@ export default function TransactionsPage() {
       sharedWith: [],
     });
     setShowForm(true);
-  };
+  }, []);
 
   // Update Transaction
   // Open form for editing existing transaction
-  const handleEditTransaction = (transaction) => {
+  const handleEditTransaction = useCallback((transaction) => {
     setEditTransaction({
       ...transaction,
       sharedWith: transaction.sharedWith || [],
     });
     setShowForm(true);
-  };
+  }, []);
 
   // Handle input changes
-  const handleInputChange = (e) => {
+  const handleInputChange = useCallback((e) => {
     const { name, value, type, checked } = e.target;
     setEditTransaction((prev) => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : value,
     }));
-  };
+  }, []);
 
   // Save new transaction
-  const handleSave = async () => {
+  const handleSave = useCallback(async () => {
     if (!editTransaction.accountId) {
       return alert('Account is required.');
     }
@@ -141,10 +141,10 @@ export default function TransactionsPage() {
     } catch (err) {
       console.error('Error saving transaction:', err);
     }
-  };
+  }, [editTransaction, user?.id, loadTransactions]);
 
   // Update existing transaction
-  const handleUpdate = async () => {
+  const handleUpdate = useCallback(async () => {
     if (!editTransaction.accountId) {
       return alert('Account is required.');
     }
@@ -162,10 +162,10 @@ export default function TransactionsPage() {
     } catch (err) {
       console.error('Error updating transaction:', err);
     }
-  };
+  }, [editTransaction, loadTransactions]);
 
   // Delete transaction
-  const handleDelete = async (transaction) => {
+  const handleDelete = useCallback(async (transaction) => {
     if (!window.confirm(`Delete transaction "${transaction.description}"?`))
       return;
     try {
@@ -174,7 +174,7 @@ export default function TransactionsPage() {
     } catch (err) {
       console.error(err);
     }
-  };
+  }, []);
 
   return (
     <div style={{ padding: 20 }}>
