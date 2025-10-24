@@ -1,3 +1,5 @@
+import TransactionItem from './TransactionItem';
+
 export default function TransactionList({
   transactions,
   loading,
@@ -23,22 +25,12 @@ export default function TransactionList({
       </thead>
       <tbody>
         {transactions.map((t) => (
-          <tr key={t.id}>
-            <td>{t.date}</td>
-            <td style={{ color: t.amount >= 0 ? 'green' : 'red' }}>
-              ${t.amount.toFixed(2)}
-            </td>
-            <td>{t.description}</td>
-            <td>{t.accountName || '—'}</td>
-            <td>{t.categoryName || '—'}</td>
-            <td>{t.sharedWith?.length > 0 ? 'Yes' : 'No'}</td>
-            <td>
-              <button onClick={() => onEdit(t)}>Edit</button>
-              <button onClick={() => onDelete(t)} style={{ marginLeft: 10 }}>
-                Delete
-              </button>
-            </td>
-          </tr>
+          <TransactionItem
+            key={t.id}
+            transaction={t}
+            onEdit={onEdit}
+            onDelete={onDelete}
+          />
         ))}
       </tbody>
     </table>
