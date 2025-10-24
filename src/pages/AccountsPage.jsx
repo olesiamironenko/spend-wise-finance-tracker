@@ -7,6 +7,7 @@ import {
   deleteAccount,
 } from '../utils/airtableAccounts';
 import AccountForm from '../features/accounts/AccountForm';
+import AccountList from '../features/accounts/AccountList';
 
 export default function AccountsPage() {
   const { user } = useAuth();
@@ -135,37 +136,11 @@ export default function AccountsPage() {
       {accounts.length === 0 ? (
         <p>You did not add any accounts yet.</p>
       ) : (
-        <ul>
-          {accounts.map((acc) => (
-            <li
-              key={acc.id}
-              style={{
-                padding: '12px 16px',
-                border: '1px solid #ddd',
-                borderRadius: 6,
-                marginBottom: 10,
-                display: 'flex',
-                justifyContent: 'space-between',
-              }}
-            >
-              <div>
-                <strong>{acc.accountName}</strong> — {acc.accountType}
-              </div>
-              <div>
-                <strong>${acc.balance?.toFixed(2)}</strong>
-              </div>
-              <div>
-                <button
-                  onClick={() => handleEdit(acc)}
-                  style={{ marginRight: 10 }}
-                >
-                  Edit
-                </button>
-                <button onClick={() => handleDelete(acc)}>Delete</button>
-              </div>
-            </li>
-          ))}
-        </ul>
+        <AccountList
+          accounts={accounts}
+          onEdit={handleEdit}
+          onDelete={handleDelete}
+        />
       )}
 
       {/* Add / Edit Form */}
