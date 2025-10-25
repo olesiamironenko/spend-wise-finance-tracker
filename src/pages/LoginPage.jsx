@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import { useNavigate, Link } from 'react-router-dom';
 
@@ -8,6 +8,18 @@ export default function LoginPage() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+
+  // Clear form if user logs out
+  useEffect(() => {
+    if (!user) {
+      setEmail('');
+      setPassword('');
+      setError('');
+    }
+  }, [user]);
+
+  // Redirect if already logged in
+  if (user) return <Navigate to="/app" replace />;
 
   const handleSubmit = async (e) => {
     e.preventDefault();
