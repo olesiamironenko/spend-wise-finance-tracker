@@ -27,14 +27,6 @@ export default function App() {
   return (
     <div>
       <Routes>
-        {/* Redirect root "/" depending on auth status */}
-        <Route
-          path="/"
-          element={
-            isAuthenticated ? <Navigate to="/app" replace /> : <HomePage />
-          }
-        />
-
         {/* Public routes */}
         <Route element={<PublicLayout />}>
           <Route path="/" element={<HomePage />} />
