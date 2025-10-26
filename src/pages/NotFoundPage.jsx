@@ -10,7 +10,7 @@ export default function NotFoundPage() {
       navigate('/app');
     } else {
       // Public users go to login page
-      navigate('/login');
+      navigate('/');
     }
   }
 
@@ -19,7 +19,7 @@ export default function NotFoundPage() {
       <h1>404</h1>
       <p>Oops! The page you’re looking for doesn’t exist.</p>
       <button onClick={handleNavigate}>
-        {isAuthenticated ? 'Go to Dashboard' : 'Go to Login'}
+        {isAuthenticated ? 'Go to Dashboard' : 'Go to Home Page'}
       </button>
     </div>
   );
