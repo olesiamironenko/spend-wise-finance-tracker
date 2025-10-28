@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useCallback } from 'react';
 import { useAuth } from '../hooks/useAuth';
 import {
   fetchTransactions,
@@ -6,9 +6,11 @@ import {
   updateTransaction,
   deleteTransaction,
 } from '../utils/airtableTransactions';
-import { fetchAccounts, fetchAllAccounts } from '../utils/airtableAccounts'; // helper to get user's account IDs for form dropdown
+import { fetchAccounts } from '../utils/airtableAccounts'; // helper to get user's account IDs for form dropdown
 import { fetchCategories } from '../utils/airtableCategories'; // helper to get user's categories IDs for form dropdown
 import { fetchUsers } from '../utils/airtableUsers';
+import TransactionForm from '../features/transactions/TransactionForm';
+import TransactionList from '../features/transactions/TransactionList';
 
 export default function TransactionsPage() {
   const { user } = useAuth();
@@ -38,7 +40,7 @@ export default function TransactionsPage() {
   }, []);
 
   // Fetch transactions
-  const loadTransactions = async () => {
+  const loadTransactions = useCallback(async () => {
     if (!user?.id) return;
     setLoading(true);
     try {
@@ -49,12 +51,12 @@ export default function TransactionsPage() {
     } finally {
       setLoading(false);
     }
-  };
+  }, [user?.id]);
 
   // Load Transactions
   useEffect(() => {
     loadTransactions();
-  }, [user]);
+  }, [loadTransactions]);
 
   // Handle multi-select for sharedWith
   const handleSharedWithChange = (e) => {
@@ -65,29 +67,9 @@ export default function TransactionsPage() {
       sharedWith: selectedIds,
     }));
   };
-  // Convert comma-separated emails into Airtable record IDs
-  const resolveSharedWithIds = (sharedWithInput) => {
-    if (!sharedWithInput) return [];
-
-    const emails = Array.isArray(sharedWithInput)
-      ? sharedWithInput
-      : sharedWithInput
-          .split(',')
-          .map((s) => s.trim())
-          .filter(Boolean);
-
-    return emails
-      .map((email) =>
-        allAccounts.find(
-          (acc) => acc.email?.toLowerCase() === email.toLowerCase()
-        )
-      )
-      .filter(Boolean)
-      .map((acc) => acc.id);
-  };
 
   // Open form for new transaction
-  const handleAddTransaction = () => {
+  const handleAddTransaction = useCallback(() => {
     setEditTransaction({
       amount: '',
       transactionType: '',
@@ -99,29 +81,30 @@ export default function TransactionsPage() {
       sharedWith: [],
     });
     setShowForm(true);
-  };
+  }, []);
 
   // Update Transaction
   // Open form for editing existing transaction
-  const handleEditTransaction = (transaction) => {
+  const handleEditTransaction = useCallback((transaction) => {
     setEditTransaction({
       ...transaction,
       sharedWith: transaction.sharedWith || [],
     });
     setShowForm(true);
-  };
+  }, []);
 
   // Handle input changes
-  const handleInputChange = (e) => {
+  const handleInputChange = useCallback((e) => {
     const { name, value, type, checked } = e.target;
     setEditTransaction((prev) => ({
       ...prev,
       [name]: type === 'checkbox' ? checked : value,
+      ...(name === 'shared' && !checked ? { sharedWith: [] } : {}),
     }));
-  };
+  }, []);
 
   // Save new transaction
-  const handleSave = async () => {
+  const handleSave = useCallback(async () => {
     if (!editTransaction.accountId) {
       return alert('Account is required.');
     }
@@ -139,10 +122,10 @@ export default function TransactionsPage() {
     } catch (err) {
       console.error('Error saving transaction:', err);
     }
-  };
+  }, [editTransaction, user?.id, loadTransactions]);
 
   // Update existing transaction
-  const handleUpdate = async () => {
+  const handleUpdate = useCallback(async () => {
     if (!editTransaction.accountId) {
       return alert('Account is required.');
     }
@@ -160,10 +143,10 @@ export default function TransactionsPage() {
     } catch (err) {
       console.error('Error updating transaction:', err);
     }
-  };
+  }, [editTransaction, loadTransactions]);
 
   // Delete transaction
-  const handleDelete = async (transaction) => {
+  const handleDelete = useCallback(async (transaction) => {
     if (!window.confirm(`Delete transaction "${transaction.description}"?`))
       return;
     try {
@@ -172,7 +155,7 @@ export default function TransactionsPage() {
     } catch (err) {
       console.error(err);
     }
-  };
+  }, []);
 
   return (
     <div style={{ padding: 20 }}>
@@ -181,154 +164,29 @@ export default function TransactionsPage() {
       {transactions.length === 0 ? (
         <p>No transactions yet.</p>
       ) : (
-        <table style={{ width: '100%', borderCollapse: 'collapse' }}>
-          <thead>
-            <tr>
-              <th>Date</th>
-              <th>Amount</th>
-              <th>Description</th>
-              <th>Account</th>
-              <th>Category</th>
-              <th>Shared?</th>
-              <th>Actions</th>
-            </tr>
-          </thead>
-          <tbody>
-            {transactions.map((t) => (
-              <tr key={t.id}>
-                <td>{t.date}</td>
-                <td style={{ color: t.amount >= 0 ? 'green' : 'red' }}>
-                  ${t.amount.toFixed(2)}
-                </td>
-                <td>{t.description}</td>
-                <td>{t.accountName || '—'}</td>
-                <td>{t.categoryName || '—'}</td>
-                <td>{t.sharedWith?.length > 0 ? 'Yes' : 'No'}</td>
-                <td>
-                  <button onClick={() => handleEditTransaction(t)}>Edit</button>
-                  <button
-                    onClick={() => handleDelete(t)}
-                    style={{ marginLeft: 10 }}
-                  >
-                    Delete
-                  </button>
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+        <TransactionList
+          transactions={transactions}
+          loading={loading}
+          onEdit={handleEditTransaction}
+          onDelete={handleDelete}
+        />
       )}
       {!showForm && (
         <button onClick={handleAddTransaction}>➕ Add New Transaction</button>
       )}
       {/* Form */}
       {showForm && editTransaction && (
-        <div style={{ marginTop: 20 }}>
-          <input
-            type="number"
-            name="amount"
-            placeholder="Amount"
-            value={editTransaction.amount}
-            onChange={handleInputChange}
-            style={{ marginRight: 10 }}
-          />
-
-          <select
-            name="transactionType"
-            value={editTransaction.transactionType || ''}
-            onChange={handleInputChange}
-            style={{ marginRight: 10 }}
-          >
-            <option value="">Select Type</option>
-            <option value="Expense">Expense</option>
-            <option value="Income">Income</option>
-          </select>
-
-          <select
-            name="categoryId"
-            value={editTransaction.categoryId || ''}
-            onChange={handleInputChange}
-            style={{ marginRight: 10 }}
-          >
-            <option value="">Select Category</option>
-            {categories.map((cat) => (
-              <option key={cat.id} value={cat.id}>
-                {cat.categoryName}
-              </option>
-            ))}
-          </select>
-
-          <select
-            name="accountId"
-            value={editTransaction.accountId || ''}
-            onChange={handleInputChange}
-            required
-            style={{ marginRight: 10 }}
-          >
-            <option value="">Select Account</option>
-            {accounts.map((acc) => (
-              <option key={acc.id} value={acc.id}>
-                {acc.accountName} ({acc.currency})
-              </option>
-            ))}
-          </select>
-
-          <input
-            type="date"
-            name="date"
-            value={editTransaction.date || ''}
-            onChange={handleInputChange}
-            style={{ marginRight: 10 }}
-          />
-
-          <label style={{ marginRight: 10 }}>
-            <input
-              type="checkbox"
-              name="shared"
-              checked={editTransaction.shared || false}
-              onChange={handleInputChange}
-            />{' '}
-            Shared
-          </label>
-
-          <label style={{ marginRight: 10 }}>
-            Shared with:
-            <select
-              multiple
-              name="sharedWith"
-              value={editTransaction.sharedWith || []}
-              onChange={handleSharedWithChange}
-              style={{ width: 250, marginRight: 10 }}
-            >
-              {allUsers.map((u) => (
-                <option key={u.id} value={u.id}>
-                  {u.name} ({u.email})
-                </option>
-              ))}
-            </select>
-          </label>
-
-          <input
-            type="text"
-            name="description"
-            placeholder="Description"
-            value={editTransaction.description || ''}
-            onChange={handleInputChange}
-            style={{ marginRight: 10 }}
-          />
-
-          {editTransaction.id ? (
-            <button onClick={handleUpdate} style={{ marginRight: 10 }}>
-              Update Transaction
-            </button>
-          ) : (
-            <button onClick={handleSave} style={{ marginRight: 10 }}>
-              Save Transaction
-            </button>
-          )}
-
-          <button onClick={() => setShowForm(false)}>Cancel</button>
-        </div>
+        <TransactionForm
+          editTransaction={editTransaction}
+          categories={categories}
+          accounts={accounts}
+          allUsers={allUsers}
+          onChange={handleInputChange}
+          onSharedWithChange={handleSharedWithChange}
+          onSave={handleSave}
+          onUpdate={handleUpdate}
+          onCancel={() => setShowForm(false)}
+        />
       )}
     </div>
   );
