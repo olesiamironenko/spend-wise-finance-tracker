@@ -4,7 +4,7 @@ import Layout from './Layout';
 export default function PrivateLayout() {
   const isAuthenticated = localStorage.getItem('currentUser');
 
-  if (!isAuthenticated) return <Navigate to="/login" replace />;
+  if (!isAuthenticated) return <Navigate to="/" replace />;
   return (
     <Layout>
       <Outlet /> {/* Nested private routes will render here */}

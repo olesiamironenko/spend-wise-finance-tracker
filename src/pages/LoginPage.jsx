@@ -3,7 +3,7 @@ import { useAuth } from '../hooks/useAuth';
 import { useNavigate, Link } from 'react-router-dom';
 
 export default function LoginPage() {
-  const { login } = useAuth();
+  const { login, user } = useAuth();
   const navigate = useNavigate();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');

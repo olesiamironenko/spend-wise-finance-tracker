@@ -5,7 +5,7 @@ export default function PublicLayout() {
   return (
     <Layout>
       <Outlet />
-      {/* Nested private routes will render here */}
+      {/* Nested public routes will render here */}
     </Layout>
   );
 }
