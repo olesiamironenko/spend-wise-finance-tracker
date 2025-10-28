@@ -43,6 +43,7 @@ export default function App() {
           <Route path="accounts" element={<AccountsPage />} />
           <Route path="transactions" element={<TransactionsPage />} />
           <Route path="shared" element={<SharedExpensesPage />} />
+          <Route path="categories" element={<CategoriesPage />} />
 
           {/* Private 404 fallback */}
           <Route path="*" element={<NotFoundPage />} />
