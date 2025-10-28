@@ -42,6 +42,8 @@ export async function addCategory({ name, userId, parentId = null }) {
       parentId: parentId ? [parentId] : [],
     };
 
+    console.log('Creating category with fields:', normalizedFields);
+
     const record = await base('Categories').create([
       { fields: normalizedFields },
     ]);

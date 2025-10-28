@@ -37,6 +37,7 @@ export default function CategoriesPage() {
     setEditCategory({
       name: '',
       parentId: '',
+      userId: user.id,
     });
     setShowForm(true);
   };
@@ -52,7 +53,12 @@ export default function CategoriesPage() {
   };
 
   const handleSave = async () => {
-    if (!editCategory.name.trim()) return alert('Category name is required.');
+    if (!editCategory?.name?.trim()) return alert('Category name is required.');
+
+    if (!user?.id) {
+      alert('User not logged in — cannot save category.');
+      return;
+    }
 
     try {
       await addCategory({
@@ -157,7 +163,7 @@ export default function CategoriesPage() {
             <input
               type="text"
               name="name"
-              value={editCategory.name}
+              value={editCategory?.name || ''}
               onChange={handleInputChange}
               style={{ marginLeft: 10 }}
             />

@@ -8,6 +8,7 @@ import DashboardPage from './pages/DashboardPage';
 import AccountsPage from './pages/AccountsPage.jsx';
 import TransactionsPage from './pages/TransactionsPage.jsx';
 import SharedExpensesPage from './pages/SharedExpensesPage.jsx';
+import CategoriesPage from './pages/CategoriesPage';
 import NotFoundPage from './pages/NotFoundPage';
 
 import PublicLayout from './components/shared/PublicLayout';
