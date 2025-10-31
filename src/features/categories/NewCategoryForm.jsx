@@ -4,6 +4,7 @@ export default function NewCategoryForm({
   onSave,
   onCancel,
   parentCategoryId = null,
+  parentCategoryName = '',
 }) {
   const [name, setName] = useState('');
 
@@ -26,14 +27,18 @@ export default function NewCategoryForm({
 
   return (
     <div style={{ marginTop: 10 }}>
-      <h4>Add New Category</h4>
+      <h4>
+        {parentCategoryId
+          ? `Add New Child Category under "${parentCategoryName}"`
+          : 'Add New Parent Category'}
+      </h4>
       <form onSubmit={handleSubmit}>
         <input
           type="text"
           placeholder={
             parentCategoryId
               ? 'Child Category Name (required)'
-              : 'Parent Category (required)'
+              : 'Parent Category Name (required)'
           }
           value={name}
           onChange={(e) => setName(e.target.value)}

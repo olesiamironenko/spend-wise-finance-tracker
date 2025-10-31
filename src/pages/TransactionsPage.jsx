@@ -125,7 +125,7 @@ export default function TransactionsPage() {
         const newCategory = await addCategory({
           name,
           userId: user.id,
-          parentId: null,
+          parentId: parentId || null,
         });
 
         await loadCategories();
@@ -271,6 +271,7 @@ export default function TransactionsPage() {
           onSave={handleSave}
           onUpdate={handleUpdate}
           onCancel={() => setShowForm(false)}
+          handleNewCategorySave={handleNewCategorySave}
         />
       )}
     </div>

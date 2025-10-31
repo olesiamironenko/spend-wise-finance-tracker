@@ -6,6 +6,7 @@ import {
   updateCategory,
   deleteCategory,
 } from '../utils/airtableCategories';
+import NewCategoryForm from '../features/categories/NewCategoryForm';
 
 export default function CategoriesPage() {
   const { user } = useAuth();
@@ -47,47 +48,6 @@ export default function CategoriesPage() {
     setShowForm(true);
   };
 
-  const handleInputChange = (e) => {
-    const { name, value } = e.target;
-    setEditCategory((prev) => ({ ...prev, [name]: value }));
-  };
-
-  const handleSave = async () => {
-    if (!editCategory?.name?.trim()) return alert('Category name is required.');
-
-    if (!user?.id) {
-      alert('User not logged in — cannot save category.');
-      return;
-    }
-
-    try {
-      await addCategory({
-        name: editCategory.name.trim(),
-        parentId: editCategory.parentId || null,
-        userId: user.id,
-      });
-      await loadCategories();
-      setEditCategory(null);
-      setShowForm(false);
-    } catch (err) {
-      console.error('Error saving category:', err);
-    }
-  };
-
-  const handleUpdate = async () => {
-    if (!editCategory.name.trim()) return alert('Category name is required.');
-
-    try {
-      const { id, ...fields } = editCategory;
-      await updateCategory(id, fields);
-      await loadCategories();
-      setEditCategory(null);
-      setShowForm(false);
-    } catch (err) {
-      console.error('Error updating category:', err);
-    }
-  };
-
   const handleDelete = async (category) => {
     if (!window.confirm(`Delete category "${category.name}"?`)) return;
     try {
@@ -110,7 +70,7 @@ export default function CategoriesPage() {
       {!loading && categories.length === 0 && <p>No categories yet.</p>}
 
       {!showForm && (
-        <button onClick={handleAddCategory}>➕ Add New Category</button>
+        <button onClick={handleAddCategory}>+ Add New Parent Category</button>
       )}
 
       {/* Category List */}
@@ -129,6 +89,20 @@ export default function CategoriesPage() {
               style={{ marginLeft: 5 }}
             >
               Delete
+            </button>
+            <button
+              onClick={() => {
+                setEditCategory({
+                  name: '',
+                  parentId: parent.id,
+                  userId: user.id,
+                });
+                setShowForm(true);
+                setEditCategory({ parentId: parent.id });
+              }}
+              style={{ marginLeft: 10 }}
+            >
+              + Add New Child Category
             </button>
 
             <ul style={{ marginLeft: 20 }}>
@@ -156,51 +130,31 @@ export default function CategoriesPage() {
 
       {/* Form */}
       {showForm && (
-        <div style={{ marginTop: 20 }}>
-          <h3>{editCategory?.id ? 'Edit Category' : 'Add Category'}</h3>
-          <label>
-            Name:
-            <input
-              type="text"
-              name="name"
-              value={editCategory?.name || ''}
-              onChange={handleInputChange}
-              style={{ marginLeft: 10 }}
-            />
-          </label>
-
-          <br />
-          <label style={{ marginTop: 10, display: 'block' }}>
-            Parent Category:
-            <select
-              name="parentId"
-              value={editCategory.parentId || ''}
-              onChange={handleInputChange}
-              style={{ marginLeft: 10 }}
-            >
-              <option value="">None (top-level)</option>
-              {parentCategories.map((p) => (
-                <option key={p.id} value={p.id}>
-                  {p.name}
-                </option>
-              ))}
-            </select>
-          </label>
-
-          <div style={{ marginTop: 10 }}>
-            {editCategory.id ? (
-              <button onClick={handleUpdate}>💾 Update</button>
-            ) : (
-              <button onClick={handleSave}>💾 Save</button>
-            )}
-            <button
-              onClick={() => setShowForm(false)}
-              style={{ marginLeft: 10 }}
-            >
-              Cancel
-            </button>
-          </div>
-        </div>
+        <NewCategoryForm
+          parentCategoryId={editCategory?.parentId || null}
+          parentCategoryName={
+            categories.find((c) => c.id === editCategory?.parentId)?.name
+          }
+          onSave={async ({ name, parentId }) => {
+            try {
+              if (editCategory?.id) {
+                await updateCategory(editCategory.id, { name, parentId });
+              } else {
+                await addCategory({
+                  name,
+                  parentId,
+                  userId: user.id,
+                });
+              }
+              await loadCategories();
+              setShowForm(false);
+              setEditCategory(null);
+            } catch (err) {
+              console.error('Error saving category:', err);
+            }
+          }}
+          onCancel={() => setShowForm(false)}
+        ></NewCategoryForm>
       )}
     </div>
   );
