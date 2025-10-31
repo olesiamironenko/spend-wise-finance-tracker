@@ -1,4 +1,13 @@
-export default function TransactionItem({ transaction, onEdit, onDelete }) {
+export default function TransactionItem({
+  transaction,
+  categories,
+  onEdit,
+  onDelete,
+}) {
+  const categoryName =
+    categories.find((c) => c.id === transaction.categoryId)?.name ||
+    'Uncategorized';
+
   return (
     <tr>
       <td>{transaction.date}</td>
@@ -7,7 +16,7 @@ export default function TransactionItem({ transaction, onEdit, onDelete }) {
       </td>
       <td>{transaction.description}</td>
       <td>{transaction.accountName || '—'}</td>
-      <td>{transaction.categoryName || '—'}</td>
+      <td>{categoryName}</td>
       <td>{transaction.sharedWith?.length > 0 ? 'Yes' : 'No'}</td>
       <td>
         <button onClick={() => onEdit(transaction)}>Edit</button>

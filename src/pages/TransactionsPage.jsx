@@ -7,7 +7,7 @@ import {
   deleteTransaction,
 } from '../utils/airtableTransactions';
 import { fetchAccounts } from '../utils/airtableAccounts'; // helper to get user's account IDs for form dropdown
-import { fetchCategories } from '../utils/airtableCategories'; // helper to get user's categories IDs for form dropdown
+import { fetchCategories, addCategory } from '../utils/airtableCategories'; // helper to get user's categories IDs for form dropdown
 import { fetchUsers } from '../utils/airtableUsers';
 import TransactionForm from '../features/transactions/TransactionForm';
 import TransactionList from '../features/transactions/TransactionList';
@@ -58,6 +58,20 @@ export default function TransactionsPage() {
     loadTransactions();
   }, [loadTransactions]);
 
+  const loadCategories = useCallback(async () => {
+    if (!user?.id) return;
+    try {
+      const data = await fetchCategories(user.id);
+      setCategories(data);
+    } catch (err) {
+      console.error('Error loading categories:', err);
+    }
+  }, [user?.id]);
+
+  useEffect(() => {
+    loadCategories();
+  }, [loadCategories]);
+
   // Handle multi-select for sharedWith
   const handleSharedWithChange = (e) => {
     const options = Array.from(e.target.selectedOptions);
@@ -75,6 +89,8 @@ export default function TransactionsPage() {
       transactionType: '',
       accountId: '',
       categoryId: '',
+      newCategoryName: '',
+      newCategoryParentId: '',
       date: '',
       description: '',
       shared: false,
@@ -103,6 +119,35 @@ export default function TransactionsPage() {
     }));
   }, []);
 
+  const handleNewCategorySave = useCallback(
+    async ({ name, parentId }) => {
+      try {
+        const newCategory = await addCategory({
+          name,
+          userId: user.id,
+          parentId: null,
+        });
+
+        await loadCategories();
+
+        if (parentId) {
+          setEditTransaction((prev) => ({
+            ...prev,
+            categoryId: newCategory.id,
+          }));
+        } else {
+          setEditTransaction((prev) => ({
+            ...prev,
+            parentCategoryId: newCategory.id,
+          }));
+        }
+      } catch (err) {
+        console.error('Error saving category:', err);
+      }
+    },
+    [user?.id, loadCategories]
+  );
+
   // Save new transaction
   const handleSave = useCallback(async () => {
     if (!editTransaction.accountId) {
@@ -110,12 +155,50 @@ export default function TransactionsPage() {
     }
 
     try {
+      let parentCategoryId = editTransaction.parentCategoryId;
+      let categoryId = editTransaction.categoryId;
+
+      // --- Step 1: Create parent category if new ---
+      if (parentCategoryId === '__new__parent__') {
+        if (!editTransaction.newParentCategoryName?.trim()) {
+          alert('Please enter a parent category name');
+          return;
+        }
+
+        const newParent = await addCategory({
+          name: editTransaction.newParentCategoryName.trim(),
+          userId: user.id,
+          parentId: null,
+        });
+
+        parentCategoryId = newParent.id;
+      }
+
+      // --- Step 2: Create child category if new ---
+      if (categoryId === '__new__child__') {
+        if (!editTransaction.newChildCategoryName?.trim()) {
+          alert('Please enter a child category name');
+          return;
+        }
+
+        const newChild = await addCategory({
+          name: editTransaction.newChildCategoryName.trim(),
+          userId: user.id,
+          parentId: parentCategoryId,
+        });
+
+        categoryId = newChild.id;
+      }
+
+      // --- Step 3: Save transaction ---
       await addTransaction({
         ...editTransaction,
         userId: user.id,
+        categoryId,
         amount: parseFloat(editTransaction.amount) || 0,
         sharedWith: editTransaction.sharedWith,
       });
+
       await loadTransactions();
       setEditTransaction(null);
       setShowForm(false);
@@ -169,6 +252,8 @@ export default function TransactionsPage() {
           loading={loading}
           onEdit={handleEditTransaction}
           onDelete={handleDelete}
+          categories={categories}
+          handleNewCategorySave={handleNewCategorySave}
         />
       )}
       {!showForm && (

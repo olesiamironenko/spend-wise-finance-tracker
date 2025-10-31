@@ -2,6 +2,7 @@ import TransactionItem from './TransactionItem';
 
 export default function TransactionList({
   transactions,
+  categories,
   loading,
   onEdit,
   onDelete,
@@ -30,6 +31,7 @@ export default function TransactionList({
             transaction={t}
             onEdit={onEdit}
             onDelete={onDelete}
+            categories={categories}
           />
         ))}
       </tbody>

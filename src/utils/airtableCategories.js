@@ -48,8 +48,13 @@ export async function addCategory({ name, userId, parentId = null }) {
       { fields: normalizedFields },
     ]);
 
-    console.log('Category created:', record[0].fields);
-    return record[0].fields;
+    const created = record[0];
+    console.log('Category created:', created);
+
+    return {
+      id: created.id,
+      ...created.fields,
+    };
   } catch (err) {
     console.error('Error adding category:', err);
     throw err;
