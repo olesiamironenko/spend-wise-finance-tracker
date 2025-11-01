@@ -7,6 +7,7 @@ import {
   deleteCategory,
 } from '../utils/airtableCategories';
 import NewCategoryForm from '../features/categories/NewCategoryForm';
+import CategoryList from '../features/categories/CategoryList';
 
 export default function CategoriesPage() {
   const { user } = useAuth();
@@ -58,10 +59,10 @@ export default function CategoriesPage() {
     }
   };
 
-  // --- Helpers to show categories grouped by parent ---
-  const parentCategories = categories.filter((c) => !c.parentId);
-  const childCategories = (parentId) =>
-    categories.filter((c) => c.parentId === parentId);
+  const handleAddChildCategory = (parent) => {
+    setEditCategory({ name: '', parentId: parent.id, userId: user.id });
+    setShowForm(true);
+  };
 
   return (
     <div style={{ padding: 20 }}>
@@ -74,59 +75,15 @@ export default function CategoriesPage() {
       )}
 
       {/* Category List */}
-      <ul>
-        {parentCategories.map((parent) => (
-          <li key={parent.id} style={{ marginTop: 10 }}>
-            <strong>{parent.name}</strong>
-            <button
-              onClick={() => handleEditCategory(parent)}
-              style={{ marginLeft: 10 }}
-            >
-              Edit
-            </button>
-            <button
-              onClick={() => handleDelete(parent)}
-              style={{ marginLeft: 5 }}
-            >
-              Delete
-            </button>
-            <button
-              onClick={() => {
-                setEditCategory({
-                  name: '',
-                  parentId: parent.id,
-                  userId: user.id,
-                });
-                setShowForm(true);
-                setEditCategory({ parentId: parent.id });
-              }}
-              style={{ marginLeft: 10 }}
-            >
-              + Add New Child Category
-            </button>
-
-            <ul style={{ marginLeft: 20 }}>
-              {childCategories(parent.id).map((child) => (
-                <li key={child.id}>
-                  {child.name}
-                  <button
-                    onClick={() => handleEditCategory(child)}
-                    style={{ marginLeft: 10 }}
-                  >
-                    Edit
-                  </button>
-                  <button
-                    onClick={() => handleDelete(child)}
-                    style={{ marginLeft: 5 }}
-                  >
-                    Delete
-                  </button>
-                </li>
-              ))}
-            </ul>
-          </li>
-        ))}
-      </ul>
+      <CategoryList
+        categories={categories}
+        onEdit={handleEditCategory}
+        onDelete={handleDelete}
+        onAddChild={(parent) => {
+          setEditCategory({ name: '', parentId: parent.id, userId: user.id });
+          setShowForm(true);
+        }}
+      />
 
       {/* Form */}
       {showForm && (
