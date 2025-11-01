@@ -1,4 +1,4 @@
-export default function TransactionItem({
+export default function TransactionListItem({
   transaction,
   categories,
   onEdit,

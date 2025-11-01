@@ -1,4 +1,4 @@
-import TransactionItem from './TransactionItem';
+import TransactionListItem from './TransactionListItem';
 
 export default function TransactionList({
   transactions,
@@ -26,7 +26,7 @@ export default function TransactionList({
       </thead>
       <tbody>
         {transactions.map((t) => (
-          <TransactionItem
+          <TransactionListItem
             key={t.id}
             transaction={t}
             onEdit={onEdit}

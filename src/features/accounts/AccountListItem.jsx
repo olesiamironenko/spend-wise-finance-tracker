@@ -1,4 +1,4 @@
-export default function AccountItem({ account, onEdit, onDelete }) {
+export default function AccountListItem({ account, onEdit, onDelete }) {
   return (
     <li
       style={{
