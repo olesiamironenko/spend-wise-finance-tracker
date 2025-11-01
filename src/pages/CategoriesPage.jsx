@@ -99,6 +99,7 @@ export default function CategoriesPage() {
           parentCategoryName={
             categories.find((c) => c.id === editCategory?.parentId)?.name
           }
+          editCategory={editCategory}
           onSave={async ({ name, parentId }) => {
             try {
               if (editCategory?.id) {
