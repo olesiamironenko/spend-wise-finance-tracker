@@ -50,6 +50,18 @@ export default function CategoriesPage() {
   };
 
   const handleDelete = async (category) => {
+    const children = categories.filter((c) => c.parentId === category.id);
+
+    // Prevent deleting parent categories with children
+    if (children.length > 0) {
+      alert(
+        `Category "${category.name}" has ${children.length} child categories.\n` +
+          `Please delete or reassign them before deleting this category.`
+      );
+      return;
+    }
+
+    // Deleting parent category without children
     if (!window.confirm(`Delete category "${category.name}"?`)) return;
     try {
       await deleteCategory(category.id);
@@ -57,11 +69,6 @@ export default function CategoriesPage() {
     } catch (err) {
       console.error(err);
     }
-  };
-
-  const handleAddChildCategory = (parent) => {
-    setEditCategory({ name: '', parentId: parent.id, userId: user.id });
-    setShowForm(true);
   };
 
   return (

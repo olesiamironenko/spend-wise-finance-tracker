@@ -3,8 +3,6 @@ import CategoryListItem from './CategoryListItem';
 function CategoryList({ categories, onEdit, onDelete, onAddChild }) {
   // Helpers to show categories grouped by parent
   const parentCategories = categories.filter((c) => !c.parentId);
-  const childCategories = (parentId) =>
-    categories.filter((c) => c.parentId === parentId);
 
   return (
     <ul>
