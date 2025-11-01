@@ -1,4 +1,4 @@
-import NewCategoryForm from '../categories/NewCategoryForm';
+import CategoryForm from '../categories/CategoryForm';
 
 export default function TransactionForm({
   editTransaction,
@@ -53,7 +53,7 @@ export default function TransactionForm({
 
       {/* Inline new parent category form */}
       {editTransaction.parentCategoryId === '__new__parent__' && (
-        <NewCategoryForm
+        <CategoryForm
           onSave={handleNewCategorySave}
           onCancel={() =>
             onChange({
@@ -84,7 +84,7 @@ export default function TransactionForm({
       </select>
 
       {editTransaction.categoryId === '__new__child__' && (
-        <NewCategoryForm
+        <CategoryForm
           parentCategoryId={editTransaction.parentCategoryId}
           onSave={handleNewCategorySave}
           onCancel={() =>

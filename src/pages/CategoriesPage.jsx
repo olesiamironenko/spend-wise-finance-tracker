@@ -6,7 +6,7 @@ import {
   updateCategory,
   deleteCategory,
 } from '../utils/airtableCategories';
-import NewCategoryForm from '../features/categories/NewCategoryForm';
+import CategoryForm from '../features/categories/CategoryForm';
 import CategoryList from '../features/categories/CategoryList';
 
 export default function CategoriesPage() {
@@ -87,7 +87,7 @@ export default function CategoriesPage() {
 
       {/* Form */}
       {showForm && (
-        <NewCategoryForm
+        <CategoryForm
           parentCategoryId={editCategory?.parentId || null}
           parentCategoryName={
             categories.find((c) => c.id === editCategory?.parentId)?.name
@@ -111,7 +111,7 @@ export default function CategoriesPage() {
             }
           }}
           onCancel={() => setShowForm(false)}
-        ></NewCategoryForm>
+        ></CategoryForm>
       )}
     </div>
   );

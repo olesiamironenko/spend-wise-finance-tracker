@@ -1,6 +1,6 @@
 import { useState } from 'react';
 
-export default function NewCategoryForm({
+export default function CategoryForm({
   onSave,
   onCancel,
   parentCategoryId = null,
