@@ -164,3 +164,9 @@ export async function deleteTransaction(id) {
     throw err;
   }
 }
+
+export function normalizeTransactionAmount(transactionType, amount) {
+  const value = parseFloat(amount);
+  if (isNaN(value)) return 0;
+  return transactionType === 'Expense' ? -Math.abs(value) : Math.abs(value);
+}

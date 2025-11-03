@@ -5,6 +5,7 @@ import {
   addTransaction,
   updateTransaction,
   deleteTransaction,
+  normalizeTransactionAmount,
 } from '../utils/airtableTransactions';
 import { fetchAccounts } from '../utils/airtableAccounts'; // helper to get user's account IDs for form dropdown
 import { fetchCategories, addCategory } from '../utils/airtableCategories'; // helper to get user's categories IDs for form dropdown
@@ -197,7 +198,10 @@ export default function TransactionsPage() {
         ...editTransaction,
         userId: user.id,
         categoryId,
-        amount: parseFloat(editTransaction.amount) || 0,
+        amount: normalizeTransactionAmount(
+          editTransaction.transactionType,
+          editTransaction.amount
+        ),
         sharedWith: editTransaction.sharedWith,
       });
 
@@ -219,7 +223,10 @@ export default function TransactionsPage() {
       const { id, ...fields } = editTransaction;
       await updateTransaction(id, {
         ...fields,
-        amount: parseFloat(fields.amount) || 0,
+        amount: normalizeTransactionAmount(
+          fields.transactionType,
+          fields.amount
+        ),
         sharedWith: fields.sharedWith,
       });
       await loadTransactions();
