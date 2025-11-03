@@ -2,10 +2,10 @@ import TransactionListItem from './TransactionListItem';
 
 export default function TransactionList({
   transactions,
-  categories,
   loading,
   onEdit,
   onDelete,
+  onView,
 }) {
   if (loading) return <p>Loading transactions...</p>;
   if (!transactions || transactions.length === 0)
@@ -19,7 +19,6 @@ export default function TransactionList({
           <th>Amount</th>
           <th>Description</th>
           <th>Account</th>
-          <th>Category</th>
           <th>Shared?</th>
           <th>Actions</th>
         </tr>
@@ -31,7 +30,7 @@ export default function TransactionList({
             transaction={t}
             onEdit={onEdit}
             onDelete={onDelete}
-            categories={categories}
+            onView={onView}
           />
         ))}
       </tbody>

@@ -11,6 +11,7 @@ import { fetchCategories, addCategory } from '../utils/airtableCategories'; // h
 import { fetchUsers } from '../utils/airtableUsers';
 import TransactionForm from '../features/transactions/TransactionForm';
 import TransactionList from '../features/transactions/TransactionList';
+import TransactionCard from '../features/transactions/TransactionCard';
 
 export default function TransactionsPage() {
   const { user } = useAuth();
@@ -21,6 +22,7 @@ export default function TransactionsPage() {
   const [categories, setCategories] = useState([]);
   const [accounts, setAccounts] = useState([]); // user accounts list
   const [allUsers, setAllUsers] = useState([]); // all users for sharedWith dropdown
+  const [selectedTransaction, setSelectedTransaction] = useState(null); // for view details
 
   // Fetch categories
   useEffect(() => {
@@ -254,8 +256,22 @@ export default function TransactionsPage() {
           onDelete={handleDelete}
           categories={categories}
           handleNewCategorySave={handleNewCategorySave}
+          onView={(transaction) => setSelectedTransaction(transaction)}
         />
       )}
+
+      {selectedTransaction && (
+        <div style={{ marginTop: 20 }}>
+          <TransactionCard
+            transaction={selectedTransaction}
+            categories={categories}
+            accounts={accounts}
+            allUsers={allUsers}
+          />
+          <button onClick={() => setSelectedTransaction(null)}>Close</button>
+        </div>
+      )}
+
       {!showForm && (
         <button onClick={handleAddTransaction}>➕ Add New Transaction</button>
       )}
