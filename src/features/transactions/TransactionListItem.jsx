@@ -1,4 +1,9 @@
-export default function TransactionItem({ transaction, onEdit, onDelete }) {
+export default function TransactionListItem({
+  transaction,
+  onEdit,
+  onDelete,
+  onView,
+}) {
   return (
     <tr>
       <td>{transaction.date}</td>
@@ -7,10 +12,14 @@ export default function TransactionItem({ transaction, onEdit, onDelete }) {
       </td>
       <td>{transaction.description}</td>
       <td>{transaction.accountName || '—'}</td>
-      <td>{transaction.categoryName || '—'}</td>
       <td>{transaction.sharedWith?.length > 0 ? 'Yes' : 'No'}</td>
       <td>
-        <button onClick={() => onEdit(transaction)}>Edit</button>
+        <button onClick={() => onView(transaction)} style={{ marginLeft: 10 }}>
+          View Details
+        </button>
+        <button onClick={() => onEdit(transaction)} style={{ marginLeft: 10 }}>
+          Edit
+        </button>
         <button
           onClick={() => onDelete(transaction)}
           style={{ marginLeft: 10 }}

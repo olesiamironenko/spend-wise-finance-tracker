@@ -8,6 +8,7 @@ import DashboardPage from './pages/DashboardPage';
 import AccountsPage from './pages/AccountsPage.jsx';
 import TransactionsPage from './pages/TransactionsPage.jsx';
 import SharedExpensesPage from './pages/SharedExpensesPage.jsx';
+import CategoriesPage from './pages/CategoriesPage';
 import NotFoundPage from './pages/NotFoundPage';
 
 import PublicLayout from './components/shared/PublicLayout';
@@ -43,6 +44,7 @@ export default function App() {
           <Route path="accounts" element={<AccountsPage />} />
           <Route path="transactions" element={<TransactionsPage />} />
           <Route path="shared" element={<SharedExpensesPage />} />
+          <Route path="categories" element={<CategoriesPage />} />
 
           {/* Private 404 fallback */}
           <Route path="*" element={<NotFoundPage />} />

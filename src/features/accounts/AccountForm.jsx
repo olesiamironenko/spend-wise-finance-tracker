@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 export default function AccountForm({
   newAccount,
@@ -6,6 +6,7 @@ export default function AccountForm({
   onSubmit,
   onCancel,
   isEditing = false,
+  defaultName = '',
 }) {
   const [errors, setErrors] = useState({});
 
@@ -26,6 +27,16 @@ export default function AccountForm({
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
+
+  // Prefill account name when defaultName changes (e.g., from CSV filename)
+  useEffect(() => {
+    if (defaultName && !isEditing && !newAccount.accountName) {
+      setNewAccount((prev) => ({
+        ...prev,
+        accountName: defaultName,
+      }));
+    }
+  }, [defaultName, isEditing, newAccount.accountName, setNewAccount]);
 
   const handleSubmit = () => {
     if (validate()) {

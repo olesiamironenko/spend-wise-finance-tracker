@@ -1,3 +1,5 @@
+import CategoryForm from '../categories/CategoryForm';
+
 export default function TransactionForm({
   editTransaction,
   categories,
@@ -8,6 +10,7 @@ export default function TransactionForm({
   onSave,
   onUpdate,
   onCancel,
+  handleNewCategorySave,
 }) {
   return (
     <div style={{ marginTop: 20 }}>
@@ -19,7 +22,6 @@ export default function TransactionForm({
         onChange={onChange}
         style={{ marginRight: 10 }}
       />
-
       <select
         name="transactionType"
         value={editTransaction.transactionType || ''}
@@ -31,19 +33,65 @@ export default function TransactionForm({
         <option value="Income">Income</option>
       </select>
 
+      {/* --- Parent Category --- */}
+      <select
+        name="parentCategoryId"
+        value={editTransaction.parentCategoryId || ''}
+        onChange={onChange}
+        style={{ marginRight: 10 }}
+      >
+        <option value="">Select Parent Category</option>
+        {categories
+          .filter((c) => !c.parentId) // only top-level categories
+          .map((p) => (
+            <option key={p.id} value={p.id}>
+              {p.name}
+            </option>
+          ))}
+        <option value="__new__parent__">➕ Add New Parent Category</option>
+      </select>
+
+      {/* Inline new parent category form */}
+      {editTransaction.parentCategoryId === '__new__parent__' && (
+        <CategoryForm
+          onSave={handleNewCategorySave}
+          onCancel={() =>
+            onChange({
+              target: { name: 'parentCategoryId', value: '' },
+            })
+          }
+        />
+      )}
+
       <select
         name="categoryId"
         value={editTransaction.categoryId || ''}
         onChange={onChange}
         style={{ marginRight: 10 }}
       >
-        <option value="">Select Category</option>
-        {categories.map((cat) => (
-          <option key={cat.id} value={cat.id}>
-            {cat.categoryName}
-          </option>
-        ))}
+        <option value="">Select Child Category</option>
+
+        {/* Only show categories whose parentId matches the selected parent */}
+        {categories
+          .filter((c) => c.parentId === editTransaction.parentCategoryId)
+          .map((child) => (
+            <option key={child.id} value={child.id}>
+              {child.name}
+            </option>
+          ))}
+
+        <option value="__new__child__">➕ Add New Child Category</option>
       </select>
+
+      {editTransaction.categoryId === '__new__child__' && (
+        <CategoryForm
+          parentCategoryId={editTransaction.parentCategoryId}
+          onSave={handleNewCategorySave}
+          onCancel={() =>
+            onChange({ target: { name: 'categoryId', value: '' } })
+          }
+        />
+      )}
 
       <select
         name="accountId"
@@ -59,7 +107,6 @@ export default function TransactionForm({
           </option>
         ))}
       </select>
-
       <input
         type="date"
         name="date"
@@ -67,7 +114,6 @@ export default function TransactionForm({
         onChange={onChange}
         style={{ marginRight: 10 }}
       />
-
       <label style={{ marginRight: 10 }}>
         <input
           type="checkbox"
@@ -77,7 +123,6 @@ export default function TransactionForm({
         />
         Shared
       </label>
-
       {editTransaction.shared && (
         <label style={{ marginRight: 10 }}>
           Shared with:
@@ -96,7 +141,6 @@ export default function TransactionForm({
           </select>
         </label>
       )}
-
       <input
         type="text"
         name="description"
@@ -105,7 +149,6 @@ export default function TransactionForm({
         onChange={onChange}
         style={{ marginRight: 10 }}
       />
-
       {editTransaction.id ? (
         <button onClick={onUpdate} style={{ marginRight: 10 }}>
           Update Transaction
@@ -115,7 +158,6 @@ export default function TransactionForm({
           Save Transaction
         </button>
       )}
-
       <button onClick={onCancel}>Cancel</button>
     </div>
   );

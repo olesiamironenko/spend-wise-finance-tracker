@@ -1,4 +1,4 @@
-import AccountItem from './AccountItem';
+import AccountListItem from './AccountListItem';
 
 export default function AccountList({ accounts, onEdit, onDelete }) {
   if (!accounts || accounts.length === 0) {
@@ -8,7 +8,7 @@ export default function AccountList({ accounts, onEdit, onDelete }) {
   return (
     <ul style={{ listStyle: 'none', padding: 0 }}>
       {accounts.map((acc) => (
-        <AccountItem
+        <AccountListItem
           key={acc.id}
           account={acc}
           onEdit={onEdit}

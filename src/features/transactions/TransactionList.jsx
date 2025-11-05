@@ -1,10 +1,11 @@
-import TransactionItem from './TransactionItem';
+import TransactionListItem from './TransactionListItem';
 
 export default function TransactionList({
   transactions,
   loading,
   onEdit,
   onDelete,
+  onView,
 }) {
   if (loading) return <p>Loading transactions...</p>;
   if (!transactions || transactions.length === 0)
@@ -18,18 +19,18 @@ export default function TransactionList({
           <th>Amount</th>
           <th>Description</th>
           <th>Account</th>
-          <th>Category</th>
           <th>Shared?</th>
           <th>Actions</th>
         </tr>
       </thead>
       <tbody>
         {transactions.map((t) => (
-          <TransactionItem
+          <TransactionListItem
             key={t.id}
             transaction={t}
             onEdit={onEdit}
             onDelete={onDelete}
+            onView={onView}
           />
         ))}
       </tbody>

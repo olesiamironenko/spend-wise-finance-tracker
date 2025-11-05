@@ -55,11 +55,11 @@ export async function addAccount({
   accountType,
   balance,
   currency,
-  userRecordId,
+  userId,
 }) {
   console.log('Creating account with:', {
-    userRecordId,
-    type: typeof userRecordId,
+    userId,
+    type: typeof userId,
   });
 
   try {
@@ -71,7 +71,7 @@ export async function addAccount({
           accountType,
           balance,
           currency,
-          userId: [userRecordId],
+          userId: [userId],
         },
       },
     ]);

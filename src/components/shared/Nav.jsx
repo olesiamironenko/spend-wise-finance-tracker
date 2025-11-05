@@ -24,6 +24,11 @@ export default function Nav({ onClose, onLogout }) {
         </NavLink>
       </li>
       <li>
+        <NavLink to="/app/categories" onClick={onClose}>
+          Categories
+        </NavLink>
+      </li>
+      <li>
         <button onClick={onLogout}>Logout</button>
       </li>
     </ul>
