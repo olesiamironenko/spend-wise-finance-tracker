@@ -57,7 +57,7 @@ export default function AccountsPage() {
   // Add Account
   const handleAddAccount = async () => {
     console.log('Creating account with:', {
-      userRecordId: user?.id,
+      userId: user?.id,
       type: newAccount.accountType,
     });
 
@@ -72,7 +72,7 @@ export default function AccountsPage() {
         accountType: newAccount.accountType,
         balance: parseFloat(newAccount.balance) || 0,
         currency: newAccount.currency,
-        userRecordId: user.id,
+        userId: user.id,
       });
 
       const refreshed = await fetchAccounts(user.id);
