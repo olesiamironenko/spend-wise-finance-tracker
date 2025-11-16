@@ -1,3 +1,14 @@
+// Reusable validators
+const isValidDate = (value) =>
+  !value || !isNaN(Date.parse(value)) || 'Invalid date format';
+
+// Reusable fields definition
+const timestamps = {
+  createdAt: { type: 'string', required: 'false', validate: isValidDate },
+  updatedAt: { type: 'string', required: 'false', validate: isValidDate },
+};
+
+// Main schema
 export const schemas = {
   users: {
     userId: { type: 'string', required: true }, // Airtable record ID (primary key)
@@ -30,7 +41,7 @@ export const schemas = {
     password: {
       type: 'string',
       required: true,
-      minLength: 6, // optional: enforce minimal password length
+      minLength: 6, // enforce minimal password length
     },
 
     role: {
@@ -43,32 +54,10 @@ export const schemas = {
     lastLogin: {
       type: 'string', // can store as ISO date string
       required: false,
-      validate: (value) => {
-        if (!value) return true; // optional
-        const isValidDate = !isNaN(Date.parse(value));
-        return isValidDate || 'Invalid date format for lastLogin';
-      },
+      validate: isValidDate,
     },
 
-    createdAt: {
-      type: 'string', // ISO date string
-      required: false,
-      validate: (value) => {
-        if (!value) return true;
-        const isValidDate = !isNaN(Date.parse(value));
-        return isValidDate || 'Invalid date format for createdAt';
-      },
-    },
-
-    updatedAt: {
-      type: 'string', // ISO date string
-      required: false,
-      validate: (value) => {
-        if (!value) return true;
-        const isValidDate = !isNaN(Date.parse(value));
-        return isValidDate || 'Invalid date format for updatedAt';
-      },
-    },
+    ...timestamps,
   },
 
   accounts: {
@@ -92,24 +81,8 @@ export const schemas = {
       pattern: /^-?\d{1,3}(,\d{3})*(\.\d+)?$|^-?\d+(\.\d+)?$/, // e.g. "-1,234.56" or "100.50"
     },
     currentBalance: { type: 'number', required: false, readonly: true }, // calculated, not editable
-    createdAt: {
-      type: 'string', // ISO date string
-      required: false,
-      validate: (value) => {
-        if (!value) return true;
-        const isValidDate = !isNaN(Date.parse(value));
-        return isValidDate || 'Invalid date format for createdAt';
-      },
-    },
-    updatedAt: {
-      type: 'string', // ISO date string
-      required: false,
-      validate: (value) => {
-        if (!value) return true;
-        const isValidDate = !isNaN(Date.parse(value));
-        return isValidDate || 'Invalid date format for updatedAt';
-      },
-    },
+
+    ...timestamps,
   },
 
   transactions: {
@@ -139,25 +112,9 @@ export const schemas = {
     },
     description: { type: 'string', required: true, maxLength: 250 },
     notes: { type: 'string', required: false, maxLength: 250 },
-    createdAt: {
-      type: 'string', // ISO date string
-      required: false,
-      validate: (value) => {
-        if (!value) return true;
-        const isValidDate = !isNaN(Date.parse(value));
-        return isValidDate || 'Invalid date format for createdAt';
-      },
-    },
-    updatedAt: {
-      type: 'string', // ISO date string
-      required: false,
-      validate: (value) => {
-        if (!value) return true;
-        const isValidDate = !isNaN(Date.parse(value));
-        return isValidDate || 'Invalid date format for updatedAt';
-      },
-    },
+    ...timestamps,
   },
+
   categories: {
     categoryId: { type: 'string', required: true }, // Airtable record ID (primary key)
     userId: { type: 'string', required: true }, // belongs to Users table
@@ -176,24 +133,6 @@ export const schemas = {
         return true;
       },
     },
-    createdAt: {
-      type: 'string', // ISO date string
-      required: false,
-      validate: (value) => {
-        if (!value) return true;
-        const isValidDate = !isNaN(Date.parse(value));
-        return isValidDate || 'Invalid date format for createdAt';
-      },
-    },
-    updatedAt: {
-      type: 'string', // ISO date string
-      required: false,
-      validate: (value) => {
-        if (!value) return true;
-        const isValidDate = !isNaN(Date.parse(value));
-        return isValidDate || 'Invalid date format for updatedAt';
-      },
-    },
+    ...timestamps,
   },
-  // other schemas...
 };
